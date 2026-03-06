@@ -1,5 +1,7 @@
 package app.domain.models;
 
+import java.util.ArrayList;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,5 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public abstract  class Customer extends Person {
-    RolCustomer rolCustomer;
+    private RolCustomer rolCustomer;
+    private ArrayList<Product> listProducts = new ArrayList<>();
 }

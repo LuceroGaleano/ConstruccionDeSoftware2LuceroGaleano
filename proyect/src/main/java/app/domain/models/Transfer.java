@@ -10,7 +10,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 
-public class Transfer extends Product{
+public class Transfer{
+    private long idTransfer;
     private BankAccount OriginAccount;
     private BankAccount DestinationAccount;
     private double amount;

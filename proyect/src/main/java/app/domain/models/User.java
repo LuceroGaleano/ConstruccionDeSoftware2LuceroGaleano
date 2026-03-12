@@ -12,6 +12,7 @@ import lombok.Setter;
 public class User extends Person{
     private long userID;
     private long relatedId;
+    private String userName;
     private RolUser systemRole;
     private String userStatus;
     private String password;

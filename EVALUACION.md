@@ -37,15 +37,15 @@
 
 ## Bonus
 
-| Bonus | Puntos |
+| Bonus | % |
 |---|---|
-| Herencia correcta: `Customer` (abstracta) → `PersonCustomer` / `CorporateCustomer` | +2 |
+| Herencia correcta: `Customer` (abstracta) → `PersonCustomer` / `CorporateCustomer` | +2% |
 
-Nota con bonus: 3.29 + 2 = 5.29 → **cap en 5.0**
+> Nota con bonus = 3.29 × 1.02 = **3.36 → 3.4**
 
 ---
 
-## Nota Final: **5.0 / 5.0**
+## Nota Final: **3.4 / 5.0**
 
 ---
 

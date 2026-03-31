@@ -16,7 +16,7 @@ public class BankAccount extends Product{
     private Customer accountHolder;
     private double currentBalance;
     private Currency currencyType;
-    private String accountStatus;
+    private AccountStatus accountStatus;
     private Date openingDate;
 }
 

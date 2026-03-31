@@ -17,8 +17,8 @@ public class Loan extends Product{
     private double approvedAmount;
     private double interestRate;
     private int termInMonths;
-    private String loanStatus;
-    private Date aprovalDate;
+    private LoanStatus loanStatus;
+    private Date approvalDate;
     private Date disburseDate;
     private BankAccount disburseAccount;
 }

@@ -8,7 +8,7 @@ public class CreatePersonCustomer {
     private CustomerPort customerPort;
 
     public void createPersonCustomer(PersonCustomer personCustomer) throws BussinesException{
-        if(customerPort.existisByDocument(personCustomer.getIdNumber())){
+        if(customerPort.existisByDocument(personCustomer.getIdentification())){
             throw new BussinesException("Identificacion ya registrada");
         }
 

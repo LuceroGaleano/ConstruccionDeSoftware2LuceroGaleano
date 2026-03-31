@@ -12,6 +12,6 @@ public abstract class Product {
     private String productID;
     private String ProductName;
     private ProductCategory productCategory;
-    private boolean approvat;
+    private boolean approved;
     private Customer customerOwner;
 }

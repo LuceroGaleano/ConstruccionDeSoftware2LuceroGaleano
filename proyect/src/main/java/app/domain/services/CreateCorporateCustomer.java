@@ -9,11 +9,11 @@ public class CreateCorporateCustomer {
     CreatePersonCustomer createPersonCustomer;
 
     public void createCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
-        if(customerPort.existisByDocument(corporateCustomer.getIdNumber())){
+        if(customerPort.existisByDocument(corporateCustomer.getIdentification())){
             throw new  BussinesException("NIT ya registrado en el sistema");
         }
 
-        if(!customerPort.existisByDocument(corporateCustomer.getLegalRepresentative().getIdNumber())){
+        if(!customerPort.existisByDocument(corporateCustomer.getLegalRepresentative().getIdentification())){
             createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
         }
 

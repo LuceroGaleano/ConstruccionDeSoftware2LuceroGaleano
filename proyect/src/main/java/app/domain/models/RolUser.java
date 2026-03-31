@@ -5,7 +5,7 @@ public enum RolUser {
     CorporateCustomerUser,
     WindowEmployee,
     SalesEmployee,
-    CoorporateEmployee,
+    CorporateEmployee,
     CorporateSupervisor,
     InternalAnalyst
 }

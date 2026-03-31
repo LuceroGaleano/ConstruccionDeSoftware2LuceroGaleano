@@ -11,5 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class PersonCustomer extends Customer{
-    private Date Brightdate;
+    private Date birthDate;
 }

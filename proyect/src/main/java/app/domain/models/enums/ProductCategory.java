@@ -1,4 +1,4 @@
-package app.domain.models;
+package app.domain.models.enums;
 
 public enum ProductCategory {
     BankAccount, 

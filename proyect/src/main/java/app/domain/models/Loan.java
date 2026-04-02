@@ -1,7 +1,10 @@
 package app.domain.models;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
+import app.domain.models.enums.LoanStatus;
+import app.domain.models.enums.LoanType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,8 +16,8 @@ import lombok.Setter;
 public class Loan extends Product{
     private LoanType loanType;
     private Customer customerApplicant;
-    private double requestedAmount;
-    private double approvedAmount;
+    private BigDecimal requestedAmount;
+    private BigDecimal approvedAmount;
     private double interestRate;
     private int termInMonths;
     private LoanStatus loanStatus;

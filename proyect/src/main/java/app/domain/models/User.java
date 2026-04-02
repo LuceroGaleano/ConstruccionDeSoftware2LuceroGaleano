@@ -2,6 +2,8 @@ package app.domain.models;
 
 import java.sql.Date;
 
+import app.domain.models.enums.RolUser;
+import app.domain.models.enums.UserStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

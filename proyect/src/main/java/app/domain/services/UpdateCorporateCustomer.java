@@ -6,27 +6,24 @@ import org.springframework.stereotype.Service;
 import app.domain.Exception.BussinesException;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.enums.CustomerStatus;
-import app.domain.models.enums.RolCustomer;
 import app.domain.ports.CustomerPort;
 
 @Service
-public class CreateCorporateCustomer {
+public class UpdateCorporateCustomer {
     private CustomerPort customerPort;
     private CreatePersonCustomer createPersonCustomer;
 
     @Autowired
-    public CreateCorporateCustomer(CustomerPort customerPort, 
-        CreatePersonCustomer createPersonCustomer){
+    public UpdateCorporateCustomer(CustomerPort customerPort, CreatePersonCustomer createPersonCustomer){
         this.customerPort = customerPort;
         this.createPersonCustomer = createPersonCustomer;
     }
 
-    public void createCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
-        //Validar que el NIT no exista en la base de datos
-        if(customerPort.existisByDocument(corporateCustomer.getIdentification())){
-            throw new  BussinesException("NIT ya registrado en el sistema");
+    public void updateCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
+        if(!customerPort.existisByDocument(corporateCustomer.getIdentification())){
+            throw new BussinesException("No existe una empresa con dicha NIT");
         }
-
+        
         //Validar que la persona representante exista en la base de datos
         if(!customerPort.existisByDocument(corporateCustomer.getLegalRepresentative().getIdentification())){
             createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
@@ -37,8 +34,6 @@ public class CreateCorporateCustomer {
             throw new BussinesException("El representante legal no esta activo en el sistema");
         }
 
-        corporateCustomer.setRolCustomer(RolCustomer.CorporateCustomer);
-        corporateCustomer.setCustomerStatus(CustomerStatus.Active);
-        customerPort.save(corporateCustomer);
+        customerPort.update(corporateCustomer);
     }
 }

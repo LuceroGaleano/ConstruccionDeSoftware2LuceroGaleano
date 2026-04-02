@@ -6,6 +6,7 @@ import app.domain.models.Customer;
 import app.domain.models.Transfer;
 
 public interface  TransferPort {
+    public boolean existisById(String id);
     public Transfer findById(String Id);
     public List<Transfer> findByCustomer(Customer customer);
     public void save(Transfer transfere);

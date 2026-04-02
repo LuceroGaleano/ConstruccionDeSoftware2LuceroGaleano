@@ -13,8 +13,8 @@ import app.domain.models.enums.AccountType;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.ProductCategory;
 import app.domain.models.enums.RolCustomer;
-import app.domain.ports.CustomerPort;
 import app.domain.ports.BankAccountPort;
+import app.domain.ports.CustomerPort;
 
 @Service
 public class CreateBankAccount {
@@ -29,6 +29,11 @@ public class CreateBankAccount {
 
     public void createBankAccount(BankAccount bankAccount) throws BussinesException{
         Customer customer = customerPort.findByDocument(bankAccount.getCustomerOwner().getIdentification());
+        //Validar que no se repita el id
+        if(bankAccountPort.existsById(bankAccount.getProductID())){
+            throw new BussinesException("Ya existe una cuent abancaria con el mismo id");
+        }
+        
         //Validar que exista el cliente
         if(customer == null){
             throw new BussinesException("No existe el cliente");
@@ -39,7 +44,7 @@ public class CreateBankAccount {
             throw new BussinesException("El cliente no puede crear una nueva cuenta");
         }
 
-        //Validar que no se repita el numeor de cuenta
+        //Validar que no se repita el numero de cuenta
         if(bankAccountPort.existsByNumber(bankAccount.getAccountNumber())){
             throw new BussinesException("Ya existe una cuenta con el mismo numero");
         }

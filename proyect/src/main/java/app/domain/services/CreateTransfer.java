@@ -28,6 +28,11 @@ public class CreateTransfer{
         BankAccount destinationAccount = transfer.getDestinationAccount();
         BigDecimal maxAmount = new BigDecimal(500000);
 
+        //Validamos que se id unico
+        if(transferPort.existisById(transfer.getIdTransfer())){
+            throw new BussinesException("Ya existe una transferencia con el mismo");
+        }
+
         //Validamos que cuenta origen y cuenta destino exista
         if(origenAccount == null){
             throw new BussinesException("No se ha encontrado la cuenta de origen");

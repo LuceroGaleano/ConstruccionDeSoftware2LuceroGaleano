@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class Transfer{
-    private long idTransfer;
+    private String idTransfer;
     private BankAccount OriginAccount;
     private BankAccount DestinationAccount;
     private BigDecimal amount;

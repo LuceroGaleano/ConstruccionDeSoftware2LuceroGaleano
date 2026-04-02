@@ -1,7 +1,7 @@
 package app.domain.models;
 
 import java.util.Date;
-
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +13,10 @@ import lombok.Setter;
 
 
 public class Bitacora {
-    long idBitacora;
+    String idBitacora;
     String operationType;
     Date operationDate;
     User user;
     Product product;
-    String datails;
+    Map<String, Object> detailData;
 }

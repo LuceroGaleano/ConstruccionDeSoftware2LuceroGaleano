@@ -11,6 +11,7 @@ public interface BankAccountPort {
     public List<BankAccount> findByCustomer(Customer customer);
     //exists
     public boolean existsByNumber(long accountNumber);
+    public boolean existsById(String id);
     //operation
     public void save(BankAccount bankAccount);
 }

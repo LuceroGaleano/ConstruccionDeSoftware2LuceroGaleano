@@ -14,4 +14,5 @@ public interface BankAccountPort {
     public boolean existsById(String id);
     //operation
     public void save(BankAccount bankAccount);
+    public void update(BankAccount bankAccount);
 }

@@ -13,4 +13,5 @@ public interface LoanPort {
     public boolean existsById(String id);
     //operation
     public void save(Loan loan);
+    public void update(Loan loan);
 }

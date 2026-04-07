@@ -61,7 +61,7 @@ public class CreateLoan {
         loan.setCustomerOwner(customerOwner);
         loan.setProductCategory(ProductCategory.Loan);
         loan.setLoanStatus(LoanStatus.Requested);
-        loan.setApprovalDate(new Date(System.currentTimeMillis()));
+        loan.setCreateDate(new Date(System.currentTimeMillis()));
         loanPort.save(loan);
         //!Debe ir a aprobacion
     }

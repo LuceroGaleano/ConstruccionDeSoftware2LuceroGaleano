@@ -10,4 +10,5 @@ public interface  TransferPort {
     public Transfer findById(String Id);
     public List<Transfer> findByCustomer(Customer customer);
     public void save(Transfer transfere);
+    public void update(Transfer transfer);
 }

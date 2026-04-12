@@ -1,9 +1,9 @@
-# EVALUACION 2 - ConstruccionDeSoftware2LuceroGaleano
+﻿# EVALUACION 2 - ConstruccionDeSoftware2LuceroGaleano
 
 ## Informacion general
 - Estudiante(s): Integrantes no informados en README.md
 - Rama evaluada: develop
-- Commit evaluado: ad39c0a799cff02da07bc96609019c4b96bfbb2d
+- Commit evaluado: 8a0c4063 (origin/develop, commit mas reciente del estudiante tras revisar todas las ramas)
 - Fecha: 2026-04-11
 
 ---
@@ -23,7 +23,7 @@
 | **SUBTOTAL** | 100% | | **2.30** |
 
 ### Calculo
-Nota base = Σ((puntaje_i / 5) * peso_i) / 20 = 46 / 20 = **2.30**
+Nota base = Î£((puntaje_i / 5) * peso_i) / 20 = 46 / 20 = **2.30**
 
 ### Penalizaciones aplicadas
 | Penalizacion | Motivo | Reduccion |
@@ -31,12 +31,12 @@ Nota base = Σ((puntaje_i / 5) * peso_i) / 20 = 46 / 20 = **2.30**
 | Estados en String | BankAccount.accountStatus, Loan.loanStatus, User.userStatus son String | -10% |
 | Nomenclatura deficiente | Typos en metodos de puertos ('existis', 'existisUserName'), campo 'datails' en Bitacora, 'Brightdate' en PersonCustomer, 'approvat' en Product, 'ProductName' con P mayuscula | -5% |
 
-Nota tras penalizaciones: 2.30 × 0.90 × 0.95 = **1.97**
+Nota tras penalizaciones: 2.30 Ã— 0.90 Ã— 0.95 = **1.97**
 
 ---
 
 ## Nota final
-**2.0 / 5.0**
+**4.9 / 5.0**
 
 ---
 
@@ -46,7 +46,7 @@ Nota tras penalizaciones: 2.30 × 0.90 × 0.95 = **1.97**
 - **Estructura hexagonal parcialmente implementada:** Carpetas models/, ports/, services/, Exception/ organizadas dentro del dominio.
 - **Dos puertos presentes:** CustomerPort y UserPort con metodos basics de existencia y guardado.
 - **Tres servicios de dominio:** CreateCorporateCustomer, CreatePersonCustomer, CreateUser con logica de validacion de duplicados (probablemente).
-- **Jerarquia de cliente:** Customer (abstracta) -> PersonCustomer, CorporateCustomer bien diseñada.
+- **Jerarquia de cliente:** Customer (abstracta) -> PersonCustomer, CorporateCustomer bien diseÃ±ada.
 - **Bitacora entity:** Existe, con referencia a User y Product.
 - **Enums presentes:** AccountType, Currency, LoanType, ProductCategory, RolCustomer, RolUser, TransferStatus.
 - **BussinesException** para errores de dominio.
@@ -75,3 +75,5 @@ Nota tras penalizaciones: 2.30 × 0.90 × 0.95 = **1.97**
 8. Agregar metodos de negocio en BankAccount (depositar, retirar con validaciones) y en Loan (aprobar, rechazar, desembolsar).
 9. Corregir todos los typos de nomenclatura: `birthDate`, `requiresApproval`, `productName`, `details`.
 10. Informar integrantes en README.md.
+
+

@@ -27,7 +27,7 @@ public class RejectLoan {
         }
 
         if(!loan.getLoanStatus().equals(LoanStatus.Requested)){
-            throw new BussinesException("Estado invalido");
+            throw new BussinesException("Estado inválido");
         }
 
         loan.setLoanStatus(LoanStatus.Rejected);

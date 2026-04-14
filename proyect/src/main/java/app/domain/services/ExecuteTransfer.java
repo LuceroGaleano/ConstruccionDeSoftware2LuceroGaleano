@@ -56,7 +56,7 @@ public class ExecuteTransfer {
         transferPort.update(transfer);
     }
 
-        //Si todo a salido bien en la transferencia, debemos modificar el monto de cuenta origen y desitno
+        //Si todo ha salido bien en la transferencia, debemos modificar el monto de cuenta origen y destino
     private void updateBalances(Transfer transfer){
         BankAccount origenAccount = transfer.getOriginAccount();
         BankAccount destinationAccount = transfer.getDestinationAccount();

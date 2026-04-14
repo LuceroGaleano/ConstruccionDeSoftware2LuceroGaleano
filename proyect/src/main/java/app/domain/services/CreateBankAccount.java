@@ -31,7 +31,7 @@ public class CreateBankAccount {
         Customer customer = customerPort.findByDocument(bankAccount.getCustomerOwner().getIdentification());
         //Validar que no se repita el id
         if(bankAccountPort.existsById(bankAccount.getProductID())){
-            throw new BussinesException("Ya existe una cuent abancaria con el mismo id");
+            throw new BussinesException("Ya existe una cuenta bancaria con el mismo id");
         }
         
         //Validar que exista el cliente
@@ -44,9 +44,9 @@ public class CreateBankAccount {
             throw new BussinesException("El cliente no puede crear una nueva cuenta");
         }
 
-        //Validar que no se repita el numero de cuenta
+        //Validar que no se repita el número de cuenta
         if(bankAccountPort.existsByNumber(bankAccount.getAccountNumber())){
-            throw new BussinesException("Ya existe una cuenta con el mismo numero");
+            throw new BussinesException("Ya existe una cuenta con el mismo número");
         }
 
         //Enviar rol segun el tipo de customer

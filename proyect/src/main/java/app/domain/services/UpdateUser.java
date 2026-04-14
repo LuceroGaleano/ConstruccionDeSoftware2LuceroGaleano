@@ -36,12 +36,12 @@ public class UpdateUser {
             throw new BussinesException("Ya existe un usuario con ese email");
         }
 
-        //Si existe un cliente con la misma identificacion tambien debe de actualizar los datos del clienete
-        //Si ya existe un cliente con la misma identificacion, debemos validar que los datos coincidan
+        //Si existe un cliente con la misma identificación también debe actualizar los datos del cliente
+        //Si ya existe un cliente con la misma identificación, debemos validar que los datos coincidan
         //Si no coinciden se lanza una excepcion
         if(customerPort.existisByDocument(user.getIdentification())){
             if(!hasMatchingData(user)){
-                throw new BussinesException("Hemos encontrado un cliente con la misma identificacion, sin embargo, sus datos no coninciden");
+                throw new BussinesException("Hemos encontrado un cliente con la misma identificación, sin embargo, sus datos no coinciden");
             }
         }
         userPort.update(user);

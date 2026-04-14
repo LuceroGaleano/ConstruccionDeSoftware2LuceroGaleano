@@ -16,7 +16,7 @@ public class RejectTransfer {
         }
 
         if(!transfer.getTransferStatus().equals(TransferStatus.Pending)){
-            throw new BussinesException("Estado no valido");
+            throw new BussinesException("Estado no válido");
         }
 
         transfer.setTransferStatus(TransferStatus.Rejected);

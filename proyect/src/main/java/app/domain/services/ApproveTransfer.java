@@ -25,7 +25,7 @@ public class ApproveTransfer {
         this.userPort = userPort;
     }
 
-    public void approveTranfer(String idTransfer) throws  BussinesException{
+    public void approveTransfer(String idTransfer) throws  BussinesException{
         Transfer transfer = transferPort.findById(idTransfer);
         
         if(transfer == null){
@@ -33,7 +33,7 @@ public class ApproveTransfer {
         }
 
         if(!transfer.getTransferStatus().equals(TransferStatus.Pending)){
-            throw new BussinesException("Estado no valido");
+            throw new BussinesException("Estado no válido");
         }
 
         //Validamos que el que aprueba la transferencia exista
@@ -43,7 +43,7 @@ public class ApproveTransfer {
             throw new BussinesException("Usuario que aprueba no encontrado");
         }
 
-        //Validamos que el que aprueba la tranferencia y el creador sean de la misma empresa
+        //Validamos que el que aprueba la transferencia y el creador sean de la misma empresa
         User creator = userPort.findByDocument(transfer.getIdCreator());
         if(!approver.getCompany().equals(creator.getCompany())){
             throw new BussinesException("El usuario aprobador y el creador de la transferencia no pertenecen a la misma empresa");

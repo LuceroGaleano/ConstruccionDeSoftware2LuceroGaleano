@@ -30,7 +30,7 @@ public class CreateLoan {
 
         //Validar que no se repita el id
         if(loanPort.existsById(loan.getProductID())){
-            throw new BussinesException("Ya existe una cuent abancaria con el mismo id");
+            throw new BussinesException("Ya existe una cuenta bancaria con el mismo id");
         }
 
         //Validamos que el cliente solicitante si exista
@@ -38,24 +38,24 @@ public class CreateLoan {
             throw new BussinesException("Cliente no encontrado");
         }
 
-        //Validamos que el cliente este activo
+        //Validamos que el cliente esté activo
         if(customerOwner.getCustomerStatus() != CustomerStatus.Active){
-            throw new BussinesException("El cliente no puede solicitar prestamos");
+            throw new BussinesException("El cliente no puede solicitar préstamos");
         }
 
-        //Validamos que la cuenta desembolso exista
+        //Validamos que la cuenta de desembolso exista
         if(bankAccount == null){
-            throw new BussinesException("Cuenta desembolso no encontrada");
+            throw new BussinesException("Cuenta de desembolso no encontrada");
         }
 
-        //Validamos que la cuenta de desemboloso este activa
+        //Validamos que la cuenta de desembolso esté activa
         if(bankAccount.getAccountStatus() != AccountStatus.Active){
             throw new BussinesException("La cuenta de desembolso no esta activa");
         }
         
-        //Validamos que el propietario de la cuenta de desembolos sea el cliente solicitante
+        //Validamos que el propietario de la cuenta de desembolso sea el cliente solicitante
         if(!bankAccount.getCustomerOwner().equals(customerOwner)){
-            throw new BussinesException("La cuenta de desembolso no pertenece el cliente solicitante");
+            throw new BussinesException("La cuenta de desembolso no pertenece al cliente solicitante");
         }
 
         loan.setCustomerOwner(customerOwner);

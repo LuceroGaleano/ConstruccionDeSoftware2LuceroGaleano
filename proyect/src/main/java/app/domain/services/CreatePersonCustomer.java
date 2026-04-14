@@ -13,9 +13,9 @@ public class CreatePersonCustomer {
     private CustomerPort customerPort;
 
     public void createPersonCustomer(PersonCustomer personCustomer) throws BussinesException{
-        //Validar que la identificacion no exista en la base de datos
+        //Validar que la identificación no exista en la base de datos
         if(customerPort.existisByDocument(personCustomer.getIdentification())){
-            throw new BussinesException("Identificacion ya registrada");
+            throw new BussinesException("Identificación ya registrada");
         }
 
         personCustomer.setRolCustomer(RolCustomer.PersonCustomer);

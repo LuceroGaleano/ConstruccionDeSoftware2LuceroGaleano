@@ -18,7 +18,7 @@ public class UpdatePersonCustomer {
 
     public void updatePersonCustomer(PersonCustomer personCustomer) throws BussinesException{
         if(!customerPort.existisByDocument(personCustomer.getIdentification())){
-            throw  new BussinesException("No existe un cliente con esa identificacion");
+            throw  new BussinesException("No existe un cliente con esa identificación");
         }
 
         customerPort.update(personCustomer);

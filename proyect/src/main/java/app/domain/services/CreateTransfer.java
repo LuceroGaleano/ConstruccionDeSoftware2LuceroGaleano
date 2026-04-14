@@ -36,9 +36,9 @@ public class CreateTransfer{
         BankAccount destinationAccount = transfer.getDestinationAccount();
         BigDecimal maxAmount = new BigDecimal(500000);
 
-        //Validamos que se id unico
+        //Validamos que el id sea único
         if(transferPort.existisById(transfer.getIdTransfer())){
-            throw new BussinesException("Ya existe una transferencia con el mismo");
+            throw new BussinesException("Ya existe una transferencia con el mismo id");
         }
 
         //Validamos que cuenta origen y cuenta destino exista
@@ -56,7 +56,7 @@ public class CreateTransfer{
             throw new BussinesException("No se ha encontrado el usuario creador de la transferencia");
         }
 
-        //Si el monto supera el limite y la cuenta es de tipo corriente, necesitara aprobacion
+        //Si el monto supera el límite y la cuenta es de tipo corriente, necesitará aprobación
         if(transfer.getAmount().compareTo(maxAmount)>0 && origenAccount.getAccountType() == AccountType.Current){
             //!Servicio aprobar transferencia
             transfer.setTransferStatus(TransferStatus.Pending);

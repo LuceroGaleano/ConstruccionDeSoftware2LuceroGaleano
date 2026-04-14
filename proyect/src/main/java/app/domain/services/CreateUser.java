@@ -51,10 +51,10 @@ public class CreateUser {
         userPort.save(user);
     }
 
-    //Metodo que compara la informacion del usuario la del cliente
+    //Método que compara la información del usuario con la del cliente
         private boolean hasMatchingData(User user){
             Customer customer = customerPort.findByDocument(user.getIdentification());
-            //Validar dato por dato que tienen en comun customer con userw
+            //Validar dato por dato que tienen en común customer con usuario
             boolean isConsistent = (customer.getFullName().equals(user.getFullName()) && 
                 customer.getIdentification().equals(user.getIdentification()) &&
                 customer.getEmail().equals(user.getEmail()) &&

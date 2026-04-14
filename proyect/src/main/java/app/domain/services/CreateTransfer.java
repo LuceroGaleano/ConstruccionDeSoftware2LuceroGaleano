@@ -9,21 +9,25 @@ import org.springframework.stereotype.Service;
 import app.domain.Exception.BussinesException;
 import app.domain.models.BankAccount;
 import app.domain.models.Transfer;
+import app.domain.models.User;
 import app.domain.models.enums.AccountType;
 import app.domain.models.enums.TransferStatus;
 import app.domain.ports.BankAccountPort;
 import app.domain.ports.TransferPort;
+import app.domain.ports.UserPort;
 
 @Service
 public class CreateTransfer{
     private TransferPort transferPort;
     private BankAccountPort bankAccountPort;
     private ExecuteTransfer executeTransfer;
+    private UserPort userPort;
 
     @Autowired
-    public CreateTransfer(TransferPort transferPort, BankAccountPort bankAccountPort, ExecuteTransfer executeTransfer){
+    public CreateTransfer(TransferPort transferPort, BankAccountPort bankAccountPort, UserPort userPort, ExecuteTransfer executeTransfer){
         this.transferPort = transferPort;
         this.bankAccountPort = bankAccountPort;
+        this.userPort = userPort;
         this.executeTransfer = executeTransfer;
     }
 
@@ -46,7 +50,11 @@ public class CreateTransfer{
             throw  new BussinesException("No se ha encontrado la cuenta de destino");
         }
 
-        
+        //Validamos que el creador de la transferencia exista
+        User createUser = userPort.findByDocument(transfer.getIdCreator());
+        if(createUser == null){
+            throw new BussinesException("No se ha encontrado el usuario creador de la transferencia");
+        }
 
         //Si el monto supera el limite y la cuenta es de tipo corriente, necesitara aprobacion
         if(transfer.getAmount().compareTo(maxAmount)>0 && origenAccount.getAccountType() == AccountType.Current){
@@ -57,6 +65,8 @@ public class CreateTransfer{
             transfer.setApprovalDate(new Date(System.currentTimeMillis()));
             executeTransfer.executeTransfer(transfer);
         }
+
+
 
         transfer.setOriginAccount(origenAccount);
         transfer.setDestinationAccount(destinationAccount);

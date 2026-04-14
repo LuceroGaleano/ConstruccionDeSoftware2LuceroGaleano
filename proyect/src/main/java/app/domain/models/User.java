@@ -21,4 +21,5 @@ public class User extends Person{
     private UserStatus userStatus;
     private String userName;
     private String password;
+    private String company;
 }

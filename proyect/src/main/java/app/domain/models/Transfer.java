@@ -20,4 +20,6 @@ public class Transfer{
     private Date creationDate;
     private Date approvalDate;
     private TransferStatus transferStatus;
+    private String idCreator;
+    private String idApprover;
 }

@@ -5,7 +5,7 @@ import java.sql.Date;
 
 import app.domain.models.enums.AccountStatus;
 import app.domain.models.enums.AccountType;
-import app.domain.models.enums.Currency;
+import app.domain.models.enums.CurrencyType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +18,7 @@ public class BankAccount extends Product{
     private int accountNumber;
     private AccountType accountType;
     private BigDecimal currentBalance;
-    private Currency currencyType;
+    private CurrencyType currencyType;
     private AccountStatus accountStatus;
     private Date openingDate;
 }

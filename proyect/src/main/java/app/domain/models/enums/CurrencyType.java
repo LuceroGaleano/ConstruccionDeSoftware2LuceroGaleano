@@ -1,6 +1,6 @@
 package app.domain.models.enums;
 
-public enum Currency {
+public enum CurrencyType {
     COP,
     USD,
     EUR,

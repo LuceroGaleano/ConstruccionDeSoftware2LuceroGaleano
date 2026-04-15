@@ -1,4 +1,4 @@
-package application.adapters.persistence.request;
+package application.adapters.api.request;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -33,7 +33,7 @@ public class TransferRequest {
     
     private TransferStatus transferStatus;
 
-    @NotBlank(message = "El idCreator de la transferencia no puede estar vacío")
+    @NotBlank(message = "El documento de quien esta creando la transferencia no puede estar vacío")
     private String idCreator;
     
     private String idApprover;

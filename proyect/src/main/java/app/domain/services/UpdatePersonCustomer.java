@@ -9,7 +9,7 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class UpdatePersonCustomer {
-    private CustomerPort customerPort;
+    private final CustomerPort customerPort;
 
     @Autowired
     public UpdatePersonCustomer(CustomerPort customerPort){
@@ -17,7 +17,7 @@ public class UpdatePersonCustomer {
     }
 
     public void updatePersonCustomer(PersonCustomer personCustomer) throws BussinesException{
-        if(!customerPort.existisByDocument(personCustomer.getIdentification())){
+        if(!customerPort.existsByDocument(personCustomer.getDocument())){
             throw  new BussinesException("No existe un cliente con esa identificación");
         }
 

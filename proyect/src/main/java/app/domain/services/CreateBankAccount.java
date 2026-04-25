@@ -18,8 +18,8 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class CreateBankAccount {
-    private CustomerPort customerPort;
-    private BankAccountPort bankAccountPort;
+    private final CustomerPort customerPort;
+    private final BankAccountPort bankAccountPort;
 
     @Autowired
     public CreateBankAccount(CustomerPort customerPort, BankAccountPort bankAccountPort){
@@ -28,9 +28,9 @@ public class CreateBankAccount {
     }
 
     public void createBankAccount(BankAccount bankAccount) throws BussinesException{
-        Customer customer = customerPort.findByDocument(bankAccount.getCustomerOwner().getIdentification());
+        Customer customer = customerPort.findByDocument(bankAccount.getCustomerOwner().getDocument());
         //Validar que no se repita el id
-        if(bankAccountPort.existsById(bankAccount.getProductID())){
+        if(bankAccountPort.existsById(bankAccount.getId())){
             throw new BussinesException("Ya existe una cuenta bancaria con el mismo id");
         }
         
@@ -45,7 +45,7 @@ public class CreateBankAccount {
         }
 
         //Validar que no se repita el número de cuenta
-        if(bankAccountPort.existsByNumber(bankAccount.getAccountNumber())){
+        if(bankAccountPort.existsByAccountNumber(bankAccount.getAccountNumber())){
             throw new BussinesException("Ya existe una cuenta con el mismo número");
         }
 

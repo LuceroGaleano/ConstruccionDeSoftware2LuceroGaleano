@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public abstract class Product {
-    private String productID;
+    private String id;
     private String ProductName;
     private ProductCategory productCategory;
     private boolean approved;

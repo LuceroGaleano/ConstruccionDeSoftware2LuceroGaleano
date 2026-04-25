@@ -6,20 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import app.domain.Exception.NotFoundException;
-import app.domain.models.Customer;
+import app.domain.models.BankAccount;
 import app.domain.models.Transfer;
-import app.domain.ports.CustomerPort;
+import app.domain.ports.BankAccountPort;
 import app.domain.ports.TransferPort;
 
 @Service
 public class FindTransfer {
-    private TransferPort transferPort;
-    private CustomerPort customerPort;
+    private final TransferPort transferPort;
+    private final BankAccountPort bankAccountPort;
 
     @Autowired
-    public FindTransfer(TransferPort transferPort, CustomerPort customerPort){
+    public FindTransfer(TransferPort transferPort, BankAccountPort bankAccountPort){
         this.transferPort = transferPort;
-        this.customerPort = customerPort;
+        this.bankAccountPort = bankAccountPort;
     }
 
     public Transfer findById(String id) throws NotFoundException{
@@ -30,11 +30,11 @@ public class FindTransfer {
         return transfer;
     }
 
-    public List<Transfer> findByCustomer(String customerDocument) throws NotFoundException{
-        Customer customer = customerPort.findByDocument(customerDocument);
-        if(customer == null){
-            throw new NotFoundException("Cliente no encontrado");
+    public List<Transfer> findByAccount(String accountId) throws NotFoundException {
+        BankAccount bankAccount = bankAccountPort.findById(accountId);
+        if (bankAccount == null) {
+            throw new NotFoundException("Cuenta no encontrada");
         }
-        return  transferPort.findByCustomer(customer);
+        return transferPort.findByOriginAccount(bankAccount);
     }
 }

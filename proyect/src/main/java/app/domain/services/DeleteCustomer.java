@@ -8,7 +8,7 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class DeleteCustomer {
-    private CustomerPort customerPort;
+    private final CustomerPort customerPort;
 
     @Autowired
     public DeleteCustomer(CustomerPort customerPort){
@@ -16,7 +16,7 @@ public class DeleteCustomer {
     }
 
     public void deleteCustomer(String document) throws BussinesException{
-        if(!customerPort.existisByDocument(document)){
+        if(!customerPort.existsByDocument(document)){
             throw new BussinesException("Cliente no encontrado");
         }
         customerPort.deleteByDocument(document);

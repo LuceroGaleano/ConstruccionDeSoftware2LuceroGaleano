@@ -13,15 +13,18 @@ import app.domain.models.enums.AccountStatus;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.LoanStatus;
 import app.domain.models.enums.ProductCategory;
+import app.domain.ports.CustomerPort;
 import app.domain.ports.LoanPort;
 
 @Service
 public class CreateLoan {
-    private LoanPort loanPort;
+    private final LoanPort loanPort;
+    private final CustomerPort customerPort;
 
     @Autowired
-    public CreateLoan(LoanPort loanPort){
+    public CreateLoan(LoanPort loanPort, CustomerPort customerPort){
         this.loanPort = loanPort;
+        this.customerPort = customerPort;
     }
 
     public void createLoan(Loan loan) throws BussinesException{
@@ -29,12 +32,13 @@ public class CreateLoan {
         BankAccount bankAccount = loan.getDisburseAccount();
 
         //Validar que no se repita el id
-        if(loanPort.existsById(loan.getProductID())){
+        if(loanPort.existsById(loan.getId())){
             throw new BussinesException("Ya existe una cuenta bancaria con el mismo id");
         }
 
         //Validamos que el cliente solicitante si exista
-        if(customerOwner == null){
+        Customer customer = customerPort.findByDocument(customerOwner.getDocument());
+        if(customer == null){
             throw new BussinesException("Cliente no encontrado");
         }
 

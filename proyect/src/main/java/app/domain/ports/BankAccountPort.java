@@ -8,9 +8,9 @@ import app.domain.models.Customer;
 public interface BankAccountPort {
     //find
     public BankAccount findById(String id);
-    public List<BankAccount> findByCustomer(Customer customer);
+    public List<BankAccount> findByCustomerOwner(Customer customer);
     //exists
-    public boolean existsByNumber(long accountNumber);
+    public boolean existsByAccountNumber(long accountNumber);
     public boolean existsById(String id);
     //operation
     public void save(BankAccount bankAccount);

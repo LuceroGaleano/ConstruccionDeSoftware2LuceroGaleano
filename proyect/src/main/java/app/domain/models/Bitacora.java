@@ -13,7 +13,7 @@ import lombok.Setter;
 
 
 public class Bitacora {
-    String idBitacora;
+    String id;
     String operationType;
     Date operationDate;
     User user;

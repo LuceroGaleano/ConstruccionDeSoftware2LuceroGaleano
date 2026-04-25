@@ -16,7 +16,7 @@ public class DeleteUser {
     }
 
     public void deleteUser(String document)throws BussinesException{
-        if(!userPort.existisByDocument(document)){
+        if(!userPort.existsByDocument(document)){
             throw new BussinesException("Usuario no encontrado");
         }
         userPort.deleteByDocument(document);

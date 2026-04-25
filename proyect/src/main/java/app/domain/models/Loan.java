@@ -15,7 +15,6 @@ import lombok.Setter;
 
 public class Loan extends Product{
     private LoanType loanType;
-    private Customer customerApplicant;
     private BigDecimal requestedAmount;
     private BigDecimal approvedAmount;
     private double interestRate;

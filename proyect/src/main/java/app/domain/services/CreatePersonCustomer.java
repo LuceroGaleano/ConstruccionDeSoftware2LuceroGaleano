@@ -1,5 +1,6 @@
 package app.domain.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import app.domain.Exception.BussinesException;
@@ -10,11 +11,16 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class CreatePersonCustomer {
-    private CustomerPort customerPort;
+    private final CustomerPort customerPort;
+    
+    @Autowired
+    public CreatePersonCustomer(CustomerPort customerPort){
+        this.customerPort = customerPort;
+    }
 
     public void createPersonCustomer(PersonCustomer personCustomer) throws BussinesException{
         //Validar que la identificación no exista en la base de datos
-        if(customerPort.existisByDocument(personCustomer.getIdentification())){
+        if(customerPort.existsByDocument(personCustomer.getDocument())){
             throw new BussinesException("Identificación ya registrada");
         }
 

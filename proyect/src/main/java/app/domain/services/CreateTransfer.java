@@ -12,21 +12,18 @@ import app.domain.models.Transfer;
 import app.domain.models.User;
 import app.domain.models.enums.AccountType;
 import app.domain.models.enums.TransferStatus;
-import app.domain.ports.BankAccountPort;
 import app.domain.ports.TransferPort;
 import app.domain.ports.UserPort;
 
 @Service
 public class CreateTransfer{
-    private TransferPort transferPort;
-    private BankAccountPort bankAccountPort;
-    private ExecuteTransfer executeTransfer;
-    private UserPort userPort;
+    private final TransferPort transferPort;
+    private final ExecuteTransfer executeTransfer;
+    private final UserPort userPort;
 
     @Autowired
-    public CreateTransfer(TransferPort transferPort, BankAccountPort bankAccountPort, UserPort userPort, ExecuteTransfer executeTransfer){
+    public CreateTransfer(TransferPort transferPort, UserPort userPort, ExecuteTransfer executeTransfer){
         this.transferPort = transferPort;
-        this.bankAccountPort = bankAccountPort;
         this.userPort = userPort;
         this.executeTransfer = executeTransfer;
     }
@@ -37,7 +34,7 @@ public class CreateTransfer{
         BigDecimal maxAmount = new BigDecimal(500000);
 
         //Validamos que el id sea único
-        if(transferPort.existisById(transfer.getIdTransfer())){
+        if(transferPort.existsById(transfer.getId())){
             throw new BussinesException("Ya existe una transferencia con el mismo id");
         }
 

@@ -11,8 +11,8 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class CreateCorporateCustomer {
-    private CustomerPort customerPort;
-    private CreatePersonCustomer createPersonCustomer;
+    private final CustomerPort customerPort;
+    private final CreatePersonCustomer createPersonCustomer;
 
     @Autowired
     public CreateCorporateCustomer(CustomerPort customerPort, 
@@ -23,12 +23,12 @@ public class CreateCorporateCustomer {
 
     public void createCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
         //Validar que el NIT no exista en la base de datos
-        if(customerPort.existisByDocument(corporateCustomer.getIdentification())){
+        if(customerPort.existsByDocument(corporateCustomer.getDocument())){
             throw new  BussinesException("NIT ya registrado en el sistema");
         }
 
         //Validar que la persona representante exista en la base de datos
-        if(!customerPort.existisByDocument(corporateCustomer.getLegalRepresentative().getIdentification())){
+        if(!customerPort.existsByDocument(corporateCustomer.getLegalRepresentative().getDocument())){
             createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
         }
 

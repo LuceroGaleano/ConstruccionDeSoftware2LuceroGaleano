@@ -4,62 +4,73 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import app.domain.Exception.BussinesException;
+import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
+import app.domain.models.PersonCustomer;
 import app.domain.models.User;
+import app.domain.models.enums.RolUser;
 import app.domain.models.enums.UserStatus;
 import app.domain.ports.CustomerPort;
 import app.domain.ports.UserPort;
 
 @Service
 public class CreateUser {
-    UserPort userPort;
-    CustomerPort customerPort;
+    private final UserPort userPort;
+    private final CustomerPort customerPort;
+    private final CreateCorporateCustomer createCorporateCustomer;
+    private final CreatePersonCustomer createPersonCustomer;
 
     @Autowired
-    public CreateUser(UserPort userPort, CustomerPort customerPort){
+    public CreateUser(UserPort userPort, CustomerPort customerPort, CreateCorporateCustomer createCorporateCustomer, CreatePersonCustomer createPersonCustomer){
         this.userPort = userPort;
         this.customerPort = customerPort;
+        this.createCorporateCustomer = createCorporateCustomer;
+        this.createPersonCustomer = createPersonCustomer;
     }
 
     public void createUser(User user) throws BussinesException{
-        //Validar que la identificacion no exista en la base de datos
-        //Si exista lanzamos la excepcion
-        if(userPort.existisByDocument(user.getIdentification())){
+        // Validar credenciales únicas del Usuario
+        if(userPort.existsByDocument(user.getDocument())){
             throw new BussinesException("Identificacion ya registrada");
         }
 
-
-        //Validar que el userName no este repetido, si existe se lanza excepcion
-        if(userPort.existisByUserName(user.getUserName())){
+        if(userPort.existsByUserName(user.getUserName())){
             throw new BussinesException("Nombre de usuario ya existente");
         }
 
-        //Validar que el email no este repetido
         if(userPort.existsByEmail(user.getEmail())){
             throw new BussinesException("Ya existe un usuario con ese email");
         }
 
-        //Si ya existe un cliente con la misma identificacion, debemos validar que los datos coincidan
-        //Si no coinciden se lanza una excepcion
-        if(customerPort.existisByDocument(user.getIdentification())){
-            if(!hasMatchingData(user)){
-                throw new BussinesException("Hemos encontrado un cliente con la misma identificacion, sin embargo, sus datos no coninciden");
+        // Si el usuario es cliente, validar o crear el Customer
+        if(user.getSystemRole() == RolUser.CorporateCustomerUser || user.getSystemRole() == RolUser.PersonCustomerUser){
+            Customer customer = customerPort.findByDocument(user.getDocument());
+            
+            if(customer != null){
+                // Si Customer existe validar que los datos coincidan
+                if(!hasMatchingData(user, customer)){
+                    throw new BussinesException("Ya existe un cliente con esta identificación pero los datos no coinciden");
+                }
+            } else{
+                // Customer no existe hay crearlo
+                if(user.getSystemRole() == RolUser.CorporateCustomerUser){
+                    createCorporateCustomer.createCorporateCustomer((CorporateCustomer)user.getCustomer());
+                } else{
+                    createPersonCustomer.createPersonCustomer((PersonCustomer)user.getCustomer());
+                }
             }
         }
 
+        // Guardar el usuario con estado activo
         user.setUserStatus(UserStatus.Active);
         userPort.save(user);
     }
 
-    //Método que compara la información del usuario con la del cliente
-        private boolean hasMatchingData(User user){
-            Customer customer = customerPort.findByDocument(user.getIdentification());
-            //Validar dato por dato que tienen en común customer con usuario
-            boolean isConsistent = (customer.getFullName().equals(user.getFullName()) && 
-                customer.getIdentification().equals(user.getIdentification()) &&
-                customer.getEmail().equals(user.getEmail()) &&
-                customer.getPhone().equals(user.getPhone()) &&
-                customer.getAddress().equals(user.getAddress()));
-            return isConsistent;
-        }
+    private boolean hasMatchingData(User user, Customer customer){
+        return customer.getFullName().equals(user.getFullName()) && 
+               customer.getDocument().equals(user.getDocument()) &&
+               customer.getEmail().equals(user.getEmail()) &&
+               customer.getPhone().equals(user.getPhone()) &&
+               customer.getAddress().equals(user.getAddress());
+    }
 }

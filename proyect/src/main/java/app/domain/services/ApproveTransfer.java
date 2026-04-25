@@ -14,9 +14,9 @@ import app.domain.ports.UserPort;
 
 @Service
 public class ApproveTransfer {
-    TransferPort transferPort;
-    ExecuteTransfer executeTransfer;
-    UserPort userPort;
+    private final TransferPort transferPort;
+    private final ExecuteTransfer executeTransfer;
+    private final UserPort userPort;
 
     @Autowired
     public ApproveTransfer(TransferPort transferPort, ExecuteTransfer executeTransfer, UserPort userPort){
@@ -25,8 +25,8 @@ public class ApproveTransfer {
         this.userPort = userPort;
     }
 
-    public void approveTransfer(String idTransfer) throws  BussinesException{
-        Transfer transfer = transferPort.findById(idTransfer);
+    public void approveTransfer(String id) throws  BussinesException{
+        Transfer transfer = transferPort.findById(id);
         
         if(transfer == null){
             throw new BussinesException("Transferencia no encontrada");

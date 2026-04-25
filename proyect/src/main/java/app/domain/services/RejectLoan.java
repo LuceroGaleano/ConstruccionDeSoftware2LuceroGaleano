@@ -12,7 +12,7 @@ import app.domain.ports.LoanPort;
 
 @Service
 public class RejectLoan {
-        private LoanPort loanPort;
+        private final LoanPort loanPort;
 
     @Autowired
     public RejectLoan(LoanPort loanPort){

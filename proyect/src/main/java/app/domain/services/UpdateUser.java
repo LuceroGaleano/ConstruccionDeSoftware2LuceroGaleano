@@ -11,8 +11,8 @@ import app.domain.ports.UserPort;
 
 @Service
 public class UpdateUser {
-    private UserPort userPort;
-    private CustomerPort customerPort;
+    private final UserPort userPort;
+    private final CustomerPort customerPort;
     
     @Autowired
     public UpdateUser(UserPort userPort, CustomerPort customerPort){
@@ -22,12 +22,12 @@ public class UpdateUser {
 
     public void updateUser(User user) throws BussinesException{
         //Validar que el usuario exista
-        if(!userPort.existisByDocument(user.getIdentification())){
+        if(!userPort.existsByDocument(user.getDocument())){
             throw new BussinesException("No existe un usuario con ese documento");
         }
 
         //Validar que el userName no este repetido, si existe se lanza excepcion
-        if(userPort.existisByUserName(user.getUserName())){
+        if(userPort.existsByUserName(user.getUserName())){
             throw new BussinesException("Nombre de usuario ya existente");
         }
 
@@ -39,7 +39,7 @@ public class UpdateUser {
         //Si existe un cliente con la misma identificación también debe actualizar los datos del cliente
         //Si ya existe un cliente con la misma identificación, debemos validar que los datos coincidan
         //Si no coinciden se lanza una excepcion
-        if(customerPort.existisByDocument(user.getIdentification())){
+        if(customerPort.existsByDocument(user.getDocument())){
             if(!hasMatchingData(user)){
                 throw new BussinesException("Hemos encontrado un cliente con la misma identificación, sin embargo, sus datos no coinciden");
             }
@@ -49,10 +49,10 @@ public class UpdateUser {
 
     //Metodo que compara la informacion del usuario la del cliente
     private boolean hasMatchingData(User user){
-        Customer customer = customerPort.findByDocument(user.getIdentification());
+        Customer customer = customerPort.findByDocument(user.getDocument());
         //Validar dato por dato que tienen en comun customer con userw
         boolean isConsistent = (customer.getFullName().equals(user.getFullName()) && 
-        customer.getIdentification().equals(user.getIdentification()) &&
+        customer.getDocument().equals(user.getDocument()) &&
         customer.getEmail().equals(user.getEmail()) &&
         customer.getPhone().equals(user.getPhone()) &&
         customer.getAddress().equals(user.getAddress()));

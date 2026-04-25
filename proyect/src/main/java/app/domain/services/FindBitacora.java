@@ -9,15 +9,15 @@ import app.domain.ports.BitacoraPort;
 
 @Service
 public class FindBitacora {
-    private BitacoraPort bitacoraPort;
+    private final BitacoraPort bitacoraPort;
 
     @Autowired
     public FindBitacora(BitacoraPort bitacoraPort){
         this.bitacoraPort = bitacoraPort;
     }
 
-    public Bitacora findById(String idBitacora) throws NotFoundException{
-        Bitacora bitacora = bitacoraPort.findById(idBitacora);
+    public Bitacora findById(String id) throws NotFoundException{
+        Bitacora bitacora = bitacoraPort.findById(id);
         if(bitacora == null){
             throw new NotFoundException("Bitacora no encontrada");
         }

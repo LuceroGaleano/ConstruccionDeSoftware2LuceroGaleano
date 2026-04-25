@@ -13,8 +13,8 @@ import app.domain.ports.UserPort;
 
 @Service
 public class CreateBitacora {
-    private BitacoraPort bitacoraPort;
-    private UserPort userPort;
+    private final BitacoraPort bitacoraPort;
+    private final UserPort userPort;
 
     @Autowired
     public CreateBitacora(BitacoraPort bitacoraPort, UserPort userPort){
@@ -24,12 +24,12 @@ public class CreateBitacora {
 
     public void createBitacora(Bitacora bitacora) throws  BussinesException{
         //Validar que no se repita el id
-        if(bitacoraPort.existsById(bitacora.getIdBitacora())){
+        if(bitacoraPort.existsById(bitacora.getId())){
             throw new BussinesException("Ya existe una bitacora con esa id");
         }
 
         //Validamos que el usuario registrado exista
-        User user = userPort.findByDocument(bitacora.getUser().getIdentification());
+        User user = userPort.findByDocument(bitacora.getUser().getDocument());
         if(user == null){
             throw new BussinesException("Usuario no encontrado");
         }

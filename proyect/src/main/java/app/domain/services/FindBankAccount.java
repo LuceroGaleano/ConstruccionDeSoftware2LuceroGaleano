@@ -13,8 +13,8 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class FindBankAccount {
-    private BankAccountPort bankAccountPort;
-    private CustomerPort customerPort;
+    private final BankAccountPort bankAccountPort;
+    private final CustomerPort customerPort;
 
     @Autowired
     public FindBankAccount(BankAccountPort bankAccountPort, CustomerPort customerPort){
@@ -30,11 +30,11 @@ public class FindBankAccount {
         return bankAccount;
     }
 
-    public List<BankAccount> findByCustomer(String customerDocument) throws NotFoundException{
+    public List<BankAccount> findByCustomerOwner(String customerDocument) throws NotFoundException{
         Customer customer = customerPort.findByDocument(customerDocument);
         if(customer == null){
             throw new NotFoundException("Cliente no encontrado");
         }
-        return bankAccountPort.findByCustomer(customer);
+        return bankAccountPort.findByCustomerOwner(customer);
     }
 }

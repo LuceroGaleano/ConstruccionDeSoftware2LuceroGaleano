@@ -10,7 +10,7 @@ import lombok.Setter;
 
 public abstract class Person {
     private String fullName;
-    private String identification;
+    private String document;
     private String email;
     private String phone;
     private String address;

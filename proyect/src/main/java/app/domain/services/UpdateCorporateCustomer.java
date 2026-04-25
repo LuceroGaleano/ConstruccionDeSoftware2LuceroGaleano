@@ -10,8 +10,8 @@ import app.domain.ports.CustomerPort;
 
 @Service
 public class UpdateCorporateCustomer {
-    private CustomerPort customerPort;
-    private CreatePersonCustomer createPersonCustomer;
+    private final CustomerPort customerPort;
+    private final CreatePersonCustomer createPersonCustomer;
 
     @Autowired
     public UpdateCorporateCustomer(CustomerPort customerPort, CreatePersonCustomer createPersonCustomer){
@@ -20,12 +20,12 @@ public class UpdateCorporateCustomer {
     }
 
     public void updateCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
-        if(!customerPort.existisByDocument(corporateCustomer.getIdentification())){
+        if(!customerPort.existsByDocument(corporateCustomer.getDocument())){
             throw new BussinesException("No existe una empresa con dicha NIT");
         }
         
         //Validar que la persona representante exista en la base de datos
-        if(!customerPort.existisByDocument(corporateCustomer.getLegalRepresentative().getIdentification())){
+        if(!customerPort.existsByDocument(corporateCustomer.getLegalRepresentative().getDocument())){
             createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
         }
 

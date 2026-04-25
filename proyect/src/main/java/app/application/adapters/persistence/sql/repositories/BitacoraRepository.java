@@ -1,0 +1,8 @@
+package app.application.adapters.persistence.sql.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import app.application.adapters.persistence.sql.entities.BitacoraEntity;
+
+public interface BitacoraRepository extends JpaRepository<BitacoraEntity, String> {
+}

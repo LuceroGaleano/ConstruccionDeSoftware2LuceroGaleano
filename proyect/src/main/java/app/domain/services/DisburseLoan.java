@@ -11,18 +11,15 @@ import app.domain.models.BankAccount;
 import app.domain.models.Loan;
 import app.domain.models.enums.AccountStatus;
 import app.domain.models.enums.LoanStatus;
-import app.domain.ports.BankAccountPort;
 import app.domain.ports.LoanPort;
 
 @Service
 public class DisburseLoan {
     private LoanPort loanPort;
-    private BankAccountPort bankAccountPort;
 
     @Autowired
-    public DisburseLoan(LoanPort loanPort, BankAccountPort bankAccountPort){
+    public DisburseLoan(LoanPort loanPort){
         this.loanPort = loanPort;
-        this.bankAccountPort = bankAccountPort;
     }
 
     public void disburseLoan(String loanId) throws BussinesException{

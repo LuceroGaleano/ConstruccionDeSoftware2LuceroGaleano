@@ -6,7 +6,11 @@ import app.domain.models.enums.TransferStatus;
 import app.domain.ports.TransferPort;
 
 public class RejectTransfer {
-    TransferPort transferPort;
+    private TransferPort transferPort;
+
+    public RejectTransfer(TransferPort transferPort) {
+        this.transferPort = transferPort;
+    }
 
     public void rejectTransfer(String idTransfer){
         Transfer transfer = transferPort.findById(idTransfer);

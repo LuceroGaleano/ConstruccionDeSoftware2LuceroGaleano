@@ -5,8 +5,8 @@ import java.util.List;
 import app.domain.models.User;
 
 public interface UserPort {
-    public boolean existisByDocument(String identification);
-    public boolean existisByUserName(String userName);
+    public boolean existsByDocument(String identification);
+    public boolean existsByUserName(String userName);
     public boolean existsByEmail(String email);
 
     public User findByDocument(String identification);

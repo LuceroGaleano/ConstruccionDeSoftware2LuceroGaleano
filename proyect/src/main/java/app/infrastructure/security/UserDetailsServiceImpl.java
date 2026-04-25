@@ -1,7 +1,7 @@
 package app.infrastructure.security;
 
-import app.domain.models.identity.User;
 import app.domain.ports.UserPort;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import app.domain.models.User;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -21,14 +23,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userPort.findByUsername(username);
+        User user = userPort.findByUserName(username);
         if (user == null) {
             throw new UsernameNotFoundException("Usuario no encontrado: " + username);
         }
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getUserName(),
                 user.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getSystemRole().name()))
         );
     }
 }

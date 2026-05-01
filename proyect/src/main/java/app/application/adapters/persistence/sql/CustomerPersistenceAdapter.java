@@ -12,6 +12,8 @@ import app.application.adapters.persistence.sql.repositories.CustomerRepository;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
 import app.domain.models.PersonCustomer;
+import app.domain.models.enums.CustomerStatus;
+import app.domain.models.enums.RolCustomer;
 import app.domain.ports.CustomerPort;
 
 @Service
@@ -45,7 +47,7 @@ public class CustomerPersistenceAdapter implements CustomerPort {
             existingCustomer.setCustomerStatus(customer.getCustomerStatus() != null ? customer.getCustomerStatus().toString() : null);
             customerRepository.save(existingCustomer);
         }
-    }  // ← cierra update aquí
+    }
 
     @Override
     public Customer findByDocument(String document) {
@@ -71,9 +73,17 @@ public class CustomerPersistenceAdapter implements CustomerPort {
             PersonCustomerEntity pe = new PersonCustomerEntity();
             pe.setBirthDate(pc.getBirthDate());
             e = pe;
-        } else {
+        } else if (customer instanceof CorporateCustomer cc) {
             CorporateCustomerEntity ce = new CorporateCustomerEntity();
+            if (cc.getLegalRepresentative() != null) {
+                // ✅ Busca la entidad existente en la BD
+                PersonCustomerEntity legalEntity = (PersonCustomerEntity) customerRepository
+                    .findByDocument(cc.getLegalRepresentative().getDocument());
+                ce.setLegalRepresentative(legalEntity);
+            }
             e = ce;
+        } else {
+            e = new CustomerEntity();
         }
         e.setFullName(customer.getFullName());
         e.setDocument(customer.getDocument());
@@ -87,15 +97,31 @@ public class CustomerPersistenceAdapter implements CustomerPort {
 
     private Customer toModel(CustomerEntity e) {
         if (e == null) return null;
-        if (e instanceof PersonCustomerEntity) {
+        if (e instanceof PersonCustomerEntity pe) {
             PersonCustomer customer = new PersonCustomer();
-            customer.setDocument(e.getDocument());
-            customer.setFullName(e.getFullName());
+            customer.setId(pe.getId());
+            customer.setFullName(pe.getFullName());
+            customer.setDocument(pe.getDocument());
+            customer.setEmail(pe.getEmail());
+            customer.setPhone(pe.getPhone());
+            customer.setAddress(pe.getAddress());
+            customer.setBirthDate(pe.getBirthDate());
+            customer.setRolCustomer(pe.getRolCustomer() != null ? RolCustomer.valueOf(pe.getRolCustomer()) : null);
+            customer.setCustomerStatus(pe.getCustomerStatus() != null ? CustomerStatus.valueOf(pe.getCustomerStatus()) : null);
             return customer;
-        } else if (e instanceof CorporateCustomerEntity) {
+        } else if (e instanceof CorporateCustomerEntity ce) {
             CorporateCustomer customer = new CorporateCustomer();
-            customer.setDocument(e.getDocument());
-            customer.setFullName(e.getFullName());
+            customer.setId(ce.getId());
+            customer.setFullName(ce.getFullName());
+            customer.setDocument(ce.getDocument());
+            customer.setEmail(ce.getEmail());
+            customer.setPhone(ce.getPhone());
+            customer.setAddress(ce.getAddress());
+            customer.setRolCustomer(ce.getRolCustomer() != null ? RolCustomer.valueOf(ce.getRolCustomer()) : null);
+            customer.setCustomerStatus(ce.getCustomerStatus() != null ? CustomerStatus.valueOf(ce.getCustomerStatus()) : null);
+            if (ce.getLegalRepresentative() != null) {
+                customer.setLegalRepresentative((PersonCustomer) toModel(ce.getLegalRepresentative()));
+            }
             return customer;
         }
         return null;

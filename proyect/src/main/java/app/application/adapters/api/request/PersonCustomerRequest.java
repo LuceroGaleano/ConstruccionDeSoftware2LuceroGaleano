@@ -18,24 +18,22 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PersonCustomerRequest {
-    private long id;
-
-    @NotBlank(message = "El nombre completo es obligatorio")
+public class PersonCustomerRequest  extends CustomerRequest{
+    @NotBlank(message = "El nombre completo es obligatorio", groups = OnCreate.class)
     private String fullName;
 
-    @NotBlank(message = "La identificación es obligatoria")
+    @NotBlank(message = "La identificación es obligatoria", groups = {OnCreate.class, OnSearch.class})
     private String document;
 
-    @NotBlank(message = "El correo es obligatorio")
-    @Email(message = "El correo debe tener un formato válido")
+    @NotBlank(message = "El correo es obligatorio", groups = OnCreate.class)
+    @Email(message = "El correo debe tener un formato válido", groups = OnCreate.class)
     private String email;
 
-    @NotBlank(message = "El teléfono es obligatorio")
-    @Pattern(regexp = "\\d{7,15}", message = "El telefono debe tener entre 7 y 15 dígitos")
+    @NotBlank(message = "El teléfono es obligatorio", groups = OnCreate.class)
+    @Pattern(regexp = "\\d{7,15}", message = "El telefono debe tener entre 7 y 15 dígitos", groups = OnCreate.class)
     private String phone;
 
-    @NotBlank(message = "La dirección es obligatoria")
+    @NotBlank(message = "La dirección es obligatoria", groups = OnCreate.class)
     private String address;
 
     private RolCustomer rolCustomer;
@@ -44,7 +42,7 @@ public class PersonCustomerRequest {
     @Valid
     private List<Product> listProducts = new ArrayList<>();
 
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
-    @Past(message = "La fecha de nacimiento debe ser en el pasado")
+    @NotNull(message = "La fecha de nacimiento es obligatoria", groups = OnCreate.class)
+    @Past(message = "La fecha de nacimiento debe ser en el pasado", groups = OnCreate.class)
     private Date birthDate;
 }

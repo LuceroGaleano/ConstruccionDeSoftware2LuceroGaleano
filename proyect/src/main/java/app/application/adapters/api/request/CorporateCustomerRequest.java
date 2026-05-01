@@ -16,7 +16,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CorporateCustomerRequest {
+public class CorporateCustomerRequest extends CustomerRequest {
     @NotBlank(message = "El nombre de la empresa es obligatorio")
     private String fullName;
 

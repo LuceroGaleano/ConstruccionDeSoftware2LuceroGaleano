@@ -1,5 +1,7 @@
 package app.domain.models;
 
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public abstract class Person {
-    private long id;
+    private UUID id;
     private String fullName;
     private String document;
     private String email;

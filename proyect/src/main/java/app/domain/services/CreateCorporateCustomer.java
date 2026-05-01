@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import app.domain.Exception.BussinesException;
 import app.domain.models.CorporateCustomer;
+import app.domain.models.PersonCustomer;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.RolCustomer;
 import app.domain.ports.CustomerPort;
@@ -27,16 +28,23 @@ public class CreateCorporateCustomer {
             throw new  BussinesException("NIT ya registrado en el sistema");
         }
 
+        
         //Validar que la persona representante exista en la base de datos
         if(!customerPort.existsByDocument(corporateCustomer.getLegalRepresentative().getDocument())){
-            createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
+            PersonCustomer legal = (PersonCustomer) corporateCustomer.getLegalRepresentative();
+            if(legal.getFullName() == null || legal.getEmail() == null || legal.getBirthDate() == null){
+                throw new BussinesException("El representante legal no existe, envíe todos sus datos para crearlo");
+            }
+            createPersonCustomer.createPersonCustomer(legal);
         }
 
+        PersonCustomer legal = (PersonCustomer) customerPort.findByDocument(corporateCustomer.getLegalRepresentative().getDocument());
         //Validar que la persona representante este activo
-        if(corporateCustomer.getLegalRepresentative().getCustomerStatus() != CustomerStatus.Active){
+        if(legal.getCustomerStatus() != CustomerStatus.Active){
             throw new BussinesException("El representante legal no esta activo en el sistema");
         }
-
+        
+        corporateCustomer.setLegalRepresentative((PersonCustomer) customerPort.findByDocument(corporateCustomer.getLegalRepresentative().getDocument()));
         corporateCustomer.setRolCustomer(RolCustomer.CorporateCustomer);
         corporateCustomer.setCustomerStatus(CustomerStatus.Active);
         customerPort.save(corporateCustomer);

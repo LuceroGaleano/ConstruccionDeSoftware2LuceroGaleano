@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import app.application.adapters.api.request.CustomerRequest;
 import app.application.adapters.api.request.LoanRequest;
+import app.application.adapters.api.request.PersonCustomerRequest;
 import app.application.adapters.api.response.LoanResponse;
 import app.application.usecases.PersonCustomerUserUseCase;
-import app.domain.models.Customer;
 import app.domain.models.Loan;
 import app.domain.models.PersonCustomer;
 import app.domain.models.User;
@@ -45,7 +44,6 @@ public class PersonCustomerController {
     public ResponseEntity<LoanResponse> findLoanById(@PathVariable String id){
         Loan loan = personCustomerUserUseCase.findByIdLoan(id);
         return ResponseEntity.ok(toLoanResponse(loan));
-
     }
 
     // Mappers
@@ -54,9 +52,11 @@ public class PersonCustomerController {
         loan.setId(req.getId());
         loan.setProductName(req.getProductName());
         loan.setProductCategory(req.getProductCategory());
-        if(req.getCustomerOwner() != null){
-            loan.setCustomerOwner(toCustomer(req.getCustomerOwner()));
+
+        if(req.getCustomerOwner() instanceof PersonCustomerRequest personReq){
+            loan.setCustomerOwner(toCustomer(personReq));
         }
+
         loan.setLoanType(req.getLoanType());
         loan.setRequestedAmount(req.getRequestedAmount());
         loan.setApprovalDate(req.getApprovalDate());
@@ -92,9 +92,7 @@ public class PersonCustomerController {
         );
     }
 
-
-
-    private static Customer toCustomer(CustomerRequest req){
+    private static PersonCustomer toCustomer(PersonCustomerRequest req){
         PersonCustomer personCustomer = new PersonCustomer();
         personCustomer.setFullName(req.getFullName());
         personCustomer.setDocument(req.getDocument());

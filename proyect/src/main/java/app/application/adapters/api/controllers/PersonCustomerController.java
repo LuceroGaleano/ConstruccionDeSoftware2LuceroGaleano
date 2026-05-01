@@ -1,7 +1,5 @@
 package app.application.adapters.api.controllers;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,7 +103,6 @@ public class PersonCustomerController {
         personCustomer.setAddress(req.getAddress());
         personCustomer.setRolCustomer(req.getRolCustomer());
         personCustomer.setCustomerStatus(req.getCustomerStatus());
-        personCustomer.setListProducts(new ArrayList<>(req.getListProducts()));
         return personCustomer;
     }
 }

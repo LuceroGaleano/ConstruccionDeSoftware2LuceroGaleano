@@ -19,6 +19,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PersonCustomerRequest {
+    private long id;
+
     @NotBlank(message = "El nombre completo es obligatorio")
     private String fullName;
 

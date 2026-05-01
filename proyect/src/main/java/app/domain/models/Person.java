@@ -9,6 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public abstract class Person {
+    private long id;
     private String fullName;
     private String document;
     private String email;

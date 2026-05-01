@@ -1,5 +1,7 @@
 package app.application.adapters.persistence.sql.entities;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,10 @@ import lombok.Setter;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class CustomerEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "document", unique = true)
     private String document;
 
     @Column(name = "full_name")
@@ -38,7 +43,4 @@ public class CustomerEntity {
 
     @Column(name = "customer_status")
     private String customerStatus;
-
-    @Column(name = "customer_type")
-    private String customerType; 
 }

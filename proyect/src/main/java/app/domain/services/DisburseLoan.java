@@ -2,6 +2,7 @@ package app.domain.services;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class DisburseLoan {
         this.loanPort = loanPort;
     }
 
-    public void disburseLoan(String loanId) throws BussinesException{
+    public void disburseLoan(UUID loanId) throws BussinesException{
         Loan loan = loanPort.findById(loanId);
 
         if(loan == null){
@@ -47,13 +48,11 @@ public class DisburseLoan {
         loan.setLoanStatus(LoanStatus.Disburser);
         loan.setDisburseDate(new Date(System.currentTimeMillis()));
         loanPort.update(loan);
-
     }
 
     private void disburse(Loan loan){
         BankAccount disburseAccount = loan.getDisburseAccount();
         BigDecimal amount = loan.getApprovedAmount();
-
         disburseAccount.setCurrentBalance(disburseAccount.getCurrentBalance().add(amount));
     }
 }

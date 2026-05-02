@@ -1,6 +1,7 @@
 package app.domain.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class FindLoan {
         this.customerPort = customerPort;
     }
 
-    public Loan findById(String id) throws NotFoundException{
+    public Loan findById(UUID id) throws NotFoundException{
         Loan loan = loanPort.findById(id);
         if(loan == null){
             throw new NotFoundException("Prestamo no encontrado");

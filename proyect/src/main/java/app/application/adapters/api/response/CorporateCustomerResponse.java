@@ -15,4 +15,4 @@ public record CorporateCustomerResponse(
     RolCustomer rolCustomer,
     CustomerStatus customerStatus,
     PersonCustomerResponse legalRepresentative
-) {}
+) implements CustomerResponse {}

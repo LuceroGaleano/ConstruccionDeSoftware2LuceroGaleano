@@ -1,5 +1,6 @@
 package app.domain.services;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,34 +29,40 @@ public class CreateBankAccount {
     }
 
     public void createBankAccount(BankAccount bankAccount) throws BussinesException{
+
+
+        // Validar que exista el cliente y obtenerlo completo desde la BD
         Customer customer = customerPort.findByDocument(bankAccount.getCustomerOwner().getDocument());
-        //Validar que no se repita el id
-        if(bankAccountPort.existsById(bankAccount.getId())){
-            throw new BussinesException("Ya existe una cuenta bancaria con el mismo id");
-        }
-        
-        //Validar que exista el cliente
         if(customer == null){
             throw new BussinesException("No existe el cliente");
         }
 
-        //Validar que el cliente este activo
+        // Validar que el cliente este activo
         if(customer.getCustomerStatus() != CustomerStatus.Active){
             throw new BussinesException("El cliente no puede crear una nueva cuenta");
         }
 
-        //Validar que no se repita el número de cuenta
-        if(bankAccountPort.existsByAccountNumber(bankAccount.getAccountNumber())){
-            throw new BussinesException("Ya existe una cuenta con el mismo número");
-        }
+        // Generar número de cuenta único
+        int accountNumber;
+        do {
+            accountNumber = (int)(Math.random() * 900000000) + 100000000; // 9 dígitos
+        } while(bankAccountPort.existsByAccountNumber(accountNumber));
 
-        //Enviar rol segun el tipo de customer
+
+        // Asignar tipo de cuenta según el rol del cliente
         if(customer.getRolCustomer() == RolCustomer.CorporateCustomer){
             bankAccount.setAccountType(AccountType.Current);
-        } else{
+        } else if(customer.getRolCustomer() == RolCustomer.PersonCustomer){
             bankAccount.setAccountType(AccountType.Saving);
+        } else{
+            throw new BussinesException("El cliente no tiene un rol válido para crear una cuenta bancaria");
         }
 
+        
+        bankAccount.setApproved(false);
+        bankAccount.setAccountNumber(accountNumber);
+        bankAccount.setProductName("Cuenta" + bankAccount.getAccountNumber() + " de " + customer.getFullName());
+        bankAccount.setCurrentBalance(BigDecimal.ZERO);
         bankAccount.setProductCategory(ProductCategory.BankAccount);
         bankAccount.setCustomerOwner(customer);
         bankAccount.setAccountStatus(AccountStatus.Active);

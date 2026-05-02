@@ -2,6 +2,7 @@ package app.application.adapters.persistence.sql.entities;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +22,7 @@ import lombok.Setter;
 public class BankAccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(name = "product_name")
     private String productName;

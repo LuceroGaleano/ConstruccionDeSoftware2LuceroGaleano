@@ -20,9 +20,6 @@ public class CorporateCustomerRequest extends CustomerRequest {
     @NotBlank(message = "El nombre de la empresa es obligatorio")
     private String fullName;
 
-    @NotBlank(message = "El NIT de la empresa es obligatorio")
-    private String document;
-
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "El correo debe tener un formato válido")
     private String email;

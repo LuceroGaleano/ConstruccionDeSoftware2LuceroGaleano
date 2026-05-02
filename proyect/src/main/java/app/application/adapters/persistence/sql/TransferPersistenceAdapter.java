@@ -16,6 +16,7 @@ import app.domain.ports.TransferPort;
 
 @Service
 public class TransferPersistenceAdapter implements TransferPort {
+
     private final TransferRepository transferRepository;
     private final BankAccountRepository bankAccountRepository;
 
@@ -31,32 +32,50 @@ public class TransferPersistenceAdapter implements TransferPort {
 
     @Override
     public void update(Transfer transfer){
-        TransferEntity existingTransfer = transferRepository.findById(transfer.getId()).orElse(null);
+        TransferEntity existingTransfer = transferRepository
+                .findById(transfer.getId())
+                .orElse(null);
+
         if(existingTransfer != null){
             existingTransfer.setAmount(transfer.getAmount());
             existingTransfer.setCreationDate(transfer.getCreationDate());
             existingTransfer.setApprovalDate(transfer.getApprovalDate());
-            existingTransfer.setTransferStatus(transfer.getTransferStatus() != null ? transfer.getTransferStatus().toString() : null);
+            existingTransfer.setTransferStatus(
+                    transfer.getTransferStatus() != null ? transfer.getTransferStatus().toString() : null
+            );
             existingTransfer.setIdCreator(transfer.getIdCreator());
             existingTransfer.setIdApprover(transfer.getIdApprover());
+
             transferRepository.save(existingTransfer);
         }
     }
 
     @Override
     public boolean existsById(String id){
-        return transferRepository.existsById(id);
+        return id != null && transferRepository.existsById(id);
     }
 
     @Override 
     public Transfer findById(String id){
-        return transferRepository.findById(id).map(this::toModel).orElse(null);
+        return transferRepository
+                .findById(id)
+                .map(this::toModel)
+                .orElse(null);
     }
 
     @Override
     public List<Transfer> findByOriginAccount(BankAccount bankAccount) {
-        BankAccountEntity accountEntity = bankAccountRepository.findById(bankAccount.getId());
-        return transferRepository.findByOriginAccount(accountEntity).stream()
+
+        BankAccountEntity accountEntity = bankAccountRepository
+                .findById(bankAccount.getId())
+                .orElse(null);
+
+        if(accountEntity == null){
+            return List.of(); // evita errores
+        }
+
+        return transferRepository.findByOriginAccount(accountEntity)
+                .stream()
                 .map(this::toModel)
                 .collect(Collectors.toList());
     }
@@ -67,7 +86,9 @@ public class TransferPersistenceAdapter implements TransferPort {
         t.setAmount(e.getAmount());
         t.setCreationDate(e.getCreationDate());
         t.setApprovalDate(e.getApprovalDate());
-        t.setTransferStatus(e.getTransferStatus() != null ? TransferStatus.valueOf(e.getTransferStatus()) : null);
+        t.setTransferStatus(
+                e.getTransferStatus() != null ? TransferStatus.valueOf(e.getTransferStatus()) : null
+        );
         t.setIdCreator(e.getIdCreator());
         t.setIdApprover(e.getIdApprover());
         return t;
@@ -75,18 +96,30 @@ public class TransferPersistenceAdapter implements TransferPort {
 
     private TransferEntity toEntity(Transfer transfer){
         TransferEntity e = new TransferEntity();
+
         e.setAmount(transfer.getAmount());
         e.setCreationDate(transfer.getCreationDate());
         e.setApprovalDate(transfer.getApprovalDate());
-        e.setTransferStatus(transfer.getTransferStatus() != null ? transfer.getTransferStatus().toString() : null);
+        e.setTransferStatus(
+                transfer.getTransferStatus() != null ? transfer.getTransferStatus().toString() : null
+        );
         e.setIdCreator(transfer.getIdCreator());
         e.setIdApprover(transfer.getIdApprover());
+
         if(transfer.getOriginAccount() != null){
-            e.setOriginAccount(bankAccountRepository.findById(transfer.getOriginAccount().getId()));
+            BankAccountEntity origin = bankAccountRepository
+                    .findById(transfer.getOriginAccount().getId())
+                    .orElse(null);
+            e.setOriginAccount(origin);
         }
+
         if(transfer.getDestinationAccount() != null){
-            e.setDestinationAccount(bankAccountRepository.findById(transfer.getDestinationAccount().getId()));
+            BankAccountEntity destination = bankAccountRepository
+                    .findById(transfer.getDestinationAccount().getId())
+                    .orElse(null);
+            e.setDestinationAccount(destination);
         }
+
         return e;
     }
 }

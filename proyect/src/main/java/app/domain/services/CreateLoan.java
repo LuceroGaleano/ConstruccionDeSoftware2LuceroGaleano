@@ -13,6 +13,7 @@ import app.domain.models.enums.AccountStatus;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.LoanStatus;
 import app.domain.models.enums.ProductCategory;
+import app.domain.ports.BankAccountPort;
 import app.domain.ports.CustomerPort;
 import app.domain.ports.LoanPort;
 
@@ -20,53 +21,56 @@ import app.domain.ports.LoanPort;
 public class CreateLoan {
     private final LoanPort loanPort;
     private final CustomerPort customerPort;
+    private final BankAccountPort bankAccountPort;
 
     @Autowired
-    public CreateLoan(LoanPort loanPort, CustomerPort customerPort){
+    public CreateLoan(LoanPort loanPort, CustomerPort customerPort, BankAccountPort bankAccountPort){
         this.loanPort = loanPort;
         this.customerPort = customerPort;
+        this.bankAccountPort = bankAccountPort;
     }
 
     public void createLoan(Loan loan) throws BussinesException{
         Customer customerOwner = loan.getCustomerOwner();
-        BankAccount bankAccount = loan.getDisburseAccount();
-
-        //Validar que no se repita el id
-        if(loanPort.existsById(loan.getId())){
-            throw new BussinesException("Ya existe una cuenta bancaria con el mismo id");
-        }
-
-        //Validamos que el cliente solicitante si exista
+        // Validamos que el cliente solicitante exista y lo obtenemos completo desde la BD
         Customer customer = customerPort.findByDocument(customerOwner.getDocument());
         if(customer == null){
             throw new BussinesException("Cliente no encontrado");
         }
 
-        //Validamos que el cliente esté activo
-        if(customerOwner.getCustomerStatus() != CustomerStatus.Active){
+        // Validamos que el cliente esté activo
+        if(customer.getCustomerStatus() != CustomerStatus.Active){
             throw new BussinesException("El cliente no puede solicitar préstamos");
         }
 
-        //Validamos que la cuenta de desembolso exista
+        // Validamos que la cuenta de desembolso exista
+        if(loan.getDisburseAccount() == null){
+            throw new BussinesException("Cuenta de desembolso no encontrada");
+        }
+
+        // Obtenemos la cuenta de desembolso completa desde la BD
+        BankAccount bankAccount = bankAccountPort.findByAccountNumber(loan.getDisburseAccount().getAccountNumber());
         if(bankAccount == null){
             throw new BussinesException("Cuenta de desembolso no encontrada");
         }
 
-        //Validamos que la cuenta de desembolso esté activa
+        // Validamos que la cuenta de desembolso esté activa
         if(bankAccount.getAccountStatus() != AccountStatus.Active){
             throw new BussinesException("La cuenta de desembolso no esta activa");
         }
-        
-        //Validamos que el propietario de la cuenta de desembolso sea el cliente solicitante
-        if(!bankAccount.getCustomerOwner().equals(customerOwner)){
+
+        // Validamos que el propietario de la cuenta sea el cliente solicitante
+        if(!bankAccount.getCustomerOwner().getDocument().equals(customer.getDocument())){
             throw new BussinesException("La cuenta de desembolso no pertenece al cliente solicitante");
         }
 
-        loan.setCustomerOwner(customerOwner);
+        loan.setApproved(true);
+        loan.setProductName("Préstamo #" + (int)(Math.random() * 900000 + 100000) + " para " + customer.getFullName());
+        loan.setCustomerOwner(customer);
+        loan.setDisburseAccount(bankAccount);
         loan.setProductCategory(ProductCategory.Loan);
         loan.setLoanStatus(LoanStatus.Requested);
         loan.setCreateDate(new Date(System.currentTimeMillis()));
         loanPort.save(loan);
-        //!Debe ir a aprobacion
     }
 }

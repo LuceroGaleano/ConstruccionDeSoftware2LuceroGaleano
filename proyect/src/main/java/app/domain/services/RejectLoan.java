@@ -1,6 +1,7 @@
 package app.domain.services;
 
 import java.sql.Date;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class RejectLoan {
         this.loanPort = loanPort;
     }
 
-    public void approveLoan(String idLoan) throws BussinesException{
+    public void approveLoan(UUID idLoan) throws BussinesException{
         Loan loan = loanPort.findById(idLoan);
 
         if(loan == null){

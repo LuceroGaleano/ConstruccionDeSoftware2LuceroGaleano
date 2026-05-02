@@ -2,6 +2,7 @@ package app.application.adapters.api.response;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.UUID;
 
 import app.domain.models.BankAccount;
 import app.domain.models.Customer;
@@ -10,7 +11,7 @@ import app.domain.models.enums.LoanType;
 import app.domain.models.enums.ProductCategory;
 
 public record LoanResponse(
-    String id,
+    UUID id,
     String ProductName,
     ProductCategory productCategory,
     boolean approved,

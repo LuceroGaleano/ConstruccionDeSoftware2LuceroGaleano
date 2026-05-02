@@ -1,6 +1,7 @@
-    package app.application.adapters.persistence.sql;
+package app.application.adapters.persistence.sql;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class BankAccountPersistenceAdapater implements BankAccountPort{
 
     @Override
     public void update(BankAccount bankAccount){
-        BankAccountEntity existingAccount = bankAccountRepository.findById(bankAccount.getId());
+        BankAccountEntity existingAccount = bankAccountRepository.findById(bankAccount.getId()).orElse(null);
         if(existingAccount != null){
             existingAccount.setId(bankAccount.getId());
             existingAccount.setProductName(bankAccount.getProductName());
@@ -55,19 +56,25 @@ public class BankAccountPersistenceAdapater implements BankAccountPort{
     }
 
     @Override
-    public boolean existsById(String id){
+    public boolean existsById(UUID id){
         return bankAccountRepository.existsById(id);
     }
-    
+
     @Override
-    public boolean existsByAccountNumber(long accountNumber){
+    public boolean existsByAccountNumber(int accountNumber){
         return bankAccountRepository.existsByAccountNumber(accountNumber);
     }
 
     @Override
-    public BankAccount findById(String id){
-        return toModel(bankAccountRepository.findById(id));
+    public BankAccount findById(UUID id){
+        return toModel(bankAccountRepository.findById(id).orElse(null));
     }
+
+    @Override
+    public BankAccount findByAccountNumber(int accountNumber){
+        return toModel(bankAccountRepository.findByAccountNumber(accountNumber));
+    }
+
 
     @Override
     public List<BankAccount> findByCustomerOwner(Customer customer){
@@ -79,7 +86,6 @@ public class BankAccountPersistenceAdapater implements BankAccountPort{
 
     private BankAccountEntity toEntity(BankAccount bankAccount){
         BankAccountEntity e = new BankAccountEntity();
-        e.setId(bankAccount.getId());
         e.setProductName(bankAccount.getProductName());
         e.setProductCategory(bankAccount.getProductCategory() != null ? bankAccount.getProductCategory().toString() : null);
         e.setApproved(bankAccount.isApproved());
@@ -101,13 +107,13 @@ public class BankAccountPersistenceAdapater implements BankAccountPort{
         BankAccount bankAccount = new BankAccount();
         bankAccount.setId(e.getId());
         bankAccount.setProductName(e.getProductName());
-        bankAccount.setProductCategory(ProductCategory.valueOf(e.getProductCategory()));
+        bankAccount.setProductCategory(e.getProductCategory() != null ? ProductCategory.valueOf(e.getProductCategory()) : null);
         bankAccount.setApproved(e.isApproved());
         bankAccount.setAccountNumber(e.getAccountNumber());
-        bankAccount.setAccountType(AccountType.valueOf(e.getAccountType()));
+        bankAccount.setAccountType(e.getAccountType() != null ? AccountType.valueOf(e.getAccountType()) : null);
         bankAccount.setCurrentBalance(e.getCurrentBalance());
-        bankAccount.setCurrencyType(CurrencyType.valueOf(e.getCurrencyType()));
-        bankAccount.setAccountStatus(AccountStatus.valueOf(e.getAccountStatus()));
+        bankAccount.setCurrencyType(e.getCurrencyType() != null ? CurrencyType.valueOf(e.getCurrencyType()) : null);
+        bankAccount.setAccountStatus(e.getAccountStatus() != null ? AccountStatus.valueOf(e.getAccountStatus()) : null);
         bankAccount.setOpeningDate(e.getOpeningDate());
         if (e.getCustomerOwner() instanceof PersonCustomerEntity) {
             PersonCustomer customer = new PersonCustomer();

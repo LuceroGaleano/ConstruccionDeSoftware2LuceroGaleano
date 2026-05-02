@@ -1,6 +1,7 @@
 package app.application.usecases;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class PersonCustomerUserUseCase {
         createLoan.createLoan(loan);
     }
 
-    public Loan findByIdLoan(String id) throws BussinesException{
+    public Loan findByIdLoan(UUID id) throws BussinesException{
         return findLoan.findById(id);
     }
 
@@ -41,12 +42,12 @@ public class PersonCustomerUserUseCase {
         return findLoan.findMyLoans(user);
     }
 
-    public void createTransfer(User user,Transfer transfer) throws BussinesException{
+    public void createTransfer(User user, Transfer transfer) throws BussinesException{
         transfer.setIdCreator(user.getDocument());
         createTransfer.createTransfer(transfer);
     }
 
-    public BankAccount findAccountById(String id) throws BussinesException{
+    public BankAccount findAccountById(UUID id) throws BussinesException{
         return findBankAccount.findById(id);
     }
 

@@ -16,4 +16,4 @@ public record PersonCustomerResponse(
     RolCustomer rolCustomer,
     CustomerStatus customerStatus,
     Date birthDate
-) {}
+) implements CustomerResponse {}

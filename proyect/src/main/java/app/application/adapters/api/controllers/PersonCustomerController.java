@@ -1,5 +1,7 @@
 package app.application.adapters.api.controllers;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +43,7 @@ public class PersonCustomerController {
     }
 
     @GetMapping("/loans/{id}")
-    public ResponseEntity<LoanResponse> findLoanById(@PathVariable String id){
+    public ResponseEntity<LoanResponse> findLoanById(@PathVariable UUID id){
         Loan loan = personCustomerUserUseCase.findByIdLoan(id);
         return ResponseEntity.ok(toLoanResponse(loan));
     }
@@ -49,14 +51,13 @@ public class PersonCustomerController {
     // Mappers
     private static Loan toLoan(LoanRequest req){
         Loan loan = new Loan();
-        loan.setId(req.getId());
         loan.setProductName(req.getProductName());
         loan.setProductCategory(req.getProductCategory());
-
-        if(req.getCustomerOwner() instanceof PersonCustomerRequest personReq){
-            loan.setCustomerOwner(toCustomer(personReq));
+        if(req.getCustomerOwner() != null){
+            PersonCustomer customer = new PersonCustomer();
+            customer.setDocument(req.getCustomerOwner().getDocument());
+            loan.setCustomerOwner(customer);
         }
-
         loan.setLoanType(req.getLoanType());
         loan.setRequestedAmount(req.getRequestedAmount());
         loan.setApprovalDate(req.getApprovalDate());

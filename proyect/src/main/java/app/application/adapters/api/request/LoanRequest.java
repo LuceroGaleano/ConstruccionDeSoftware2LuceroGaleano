@@ -15,7 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoanRequest {
-    private String id;
     private String ProductName;
     private ProductCategory productCategory;
     private boolean approved;
@@ -32,13 +31,19 @@ public class LoanRequest {
     private BigDecimal requestedAmount;
 
     private BigDecimal approvedAmount;
-    private double interestRate;
-    private int termInMonths;
+
+    @NotNull(message = "La tasa de interés es obligatoria")
+    private Double interestRate;
+
+    @NotNull(message = "El plazo en meses es obligatorio")
+    private Integer termInMonths;
+
     private LoanStatus loanStatus;
     private Date createDate;
     private Date approvalDate;
     private Date disburseDate;
 
     @Valid
+    @NotNull(message = "La cuenta de desembolso es obligatoria")
     private BankAccount disburseAccount;
 }

@@ -1,6 +1,7 @@
 package app.domain.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,16 @@ public class FindBankAccount {
         this.customerPort = customerPort;
     }
 
-    public BankAccount findById(String id)throws NotFoundException{
+    public BankAccount findById(UUID id) throws NotFoundException{
         BankAccount bankAccount = bankAccountPort.findById(id);
+        if(bankAccount == null){
+            throw new NotFoundException("Cuenta bancaria no encontrada");
+        }
+        return bankAccount;
+    }
+
+    public BankAccount findByAccountNumber(int accountNumber) throws NotFoundException{
+        BankAccount bankAccount = bankAccountPort.findByAccountNumber(accountNumber);
         if(bankAccount == null){
             throw new NotFoundException("Cuenta bancaria no encontrada");
         }

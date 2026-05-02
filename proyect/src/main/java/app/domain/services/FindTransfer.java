@@ -1,6 +1,7 @@
 package app.domain.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class FindTransfer {
         return transfer;
     }
 
-    public List<Transfer> findByAccount(String accountId) throws NotFoundException {
+    public List<Transfer> findByAccount(UUID accountId) throws NotFoundException {
         BankAccount bankAccount = bankAccountPort.findById(accountId);
         if (bankAccount == null) {
             throw new NotFoundException("Cuenta no encontrada");

@@ -22,9 +22,6 @@ public class PersonCustomerRequest  extends CustomerRequest{
     @NotBlank(message = "El nombre completo es obligatorio", groups = OnCreate.class)
     private String fullName;
 
-    @NotBlank(message = "La identificación es obligatoria", groups = {OnCreate.class, OnSearch.class})
-    private String document;
-
     @NotBlank(message = "El correo es obligatorio", groups = OnCreate.class)
     @Email(message = "El correo debe tener un formato válido", groups = OnCreate.class)
     private String email;

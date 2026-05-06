@@ -29,9 +29,9 @@ public class PersonCustomerUserUseCase {
         this.findBankAccount = findBankAccount;
     }
 
-    public void createLoan(User user, Loan loan) throws BussinesException{
+    public void createLoan(User user, Loan loan) throws BussinesException {
         loan.setCustomerOwner(user.getCustomer());
-        createLoan.createLoan(loan);
+        createLoan.createLoan(loan, user);
     }
 
     public Loan findByIdLoan(UUID id) throws BussinesException{
@@ -42,9 +42,9 @@ public class PersonCustomerUserUseCase {
         return findLoan.findMyLoans(user);
     }
 
-    public void createTransfer(User user, Transfer transfer) throws BussinesException{
+    public void createTransfer(User user, Transfer transfer) throws BussinesException {
         transfer.setIdCreator(user.getDocument());
-        createTransfer.createTransfer(transfer);
+        createTransfer.createTransfer(transfer, user);
     }
 
     public BankAccount findAccountById(UUID id) throws BussinesException{

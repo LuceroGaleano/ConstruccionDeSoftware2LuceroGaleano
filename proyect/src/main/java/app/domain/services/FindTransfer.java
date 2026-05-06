@@ -23,7 +23,7 @@ public class FindTransfer {
         this.bankAccountPort = bankAccountPort;
     }
 
-    public Transfer findById(String id) throws NotFoundException{
+    public Transfer findById(UUID id) throws NotFoundException{
         Transfer transfer = transferPort.findById(id);
         if(transfer == null){
             throw new NotFoundException("Transferencia no encontrada");

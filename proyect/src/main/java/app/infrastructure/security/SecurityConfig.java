@@ -31,12 +31,27 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    // Login is public
-                    .requestMatchers("/auth/**").permitAll()
-                    // Person Customer
-                    .requestMatchers("/person_customer/**").hasRole("PersonCustomerUser")
-                    .anyRequest().permitAll()
-            )
+            // Login público
+            .requestMatchers("/auth/**").permitAll()
+            
+
+            // WindowEmployee
+            .requestMatchers("/window_employe/**").hasRole("WindowEmployee")
+
+            // SalesEmployee
+            .requestMatchers("/sales_employe/**").hasRole("SalesEmployee")
+
+            // PersonCustomerUser
+            .requestMatchers("/person_customer/**").hasRole("PersonCustomerUser")
+
+            // CorporateEmployee y CorporateSupervisor (aprobaciones)
+            .requestMatchers("/corporate_employe/**").hasAnyRole("CorporateEmployee", "CorporateSupervisor")
+
+            // InternalAnalyst
+            .requestMatchers("/internal_analyst/**").hasRole("InternalAnalyst")
+
+            .anyRequest().authenticated()
+        )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) -> {

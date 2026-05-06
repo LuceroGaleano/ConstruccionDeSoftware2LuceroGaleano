@@ -1,6 +1,7 @@
 package app.application.adapters.api.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,35 +17,37 @@ import org.springframework.web.bind.annotation.RestController;
 
 import app.application.adapters.api.request.BankAccountRequest;
 import app.application.adapters.api.request.CorporateCustomerRequest;
-import app.application.adapters.api.request.LoanRequest;
 import app.application.adapters.api.request.OnCreate;
 import app.application.adapters.api.request.OnSearch;
 import app.application.adapters.api.request.PersonCustomerRequest;
+import app.application.adapters.api.request.TransferRequest;
+import app.application.adapters.api.request.UserRequest;
 import app.application.adapters.api.response.BankAccountResponse;
 import app.application.adapters.api.response.CorporateCustomerResponse;
 import app.application.adapters.api.response.CustomerResponse;
-import app.application.adapters.api.response.LoanResponse;
 import app.application.adapters.api.response.PersonCustomerResponse;
-import app.application.usecases.SalesEmployeUseCase;
+import app.application.adapters.api.response.TransferResponse;
+import app.application.adapters.api.response.UserResponse;
+import app.application.usecases.WindowEmployeUseCase;
 import app.domain.models.BankAccount;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
-import app.domain.models.Loan;
 import app.domain.models.PersonCustomer;
+import app.domain.models.Transfer;
 import app.domain.models.User;
 import app.domain.ports.UserPort;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/sales_employe")
-public class SalesEmployeController {
+@RequestMapping("/window_employe")
+public class WindowEmployeController {
 
     @Autowired
-    private final SalesEmployeUseCase salesEmployeUseCase;
+    private final WindowEmployeUseCase windowEmployeUseCase;
     private final UserPort userPort;
 
-    public SalesEmployeController(SalesEmployeUseCase salesEmployeUseCase, UserPort userPort) {
-        this.salesEmployeUseCase = salesEmployeUseCase;
+    public WindowEmployeController(WindowEmployeUseCase windowEmployeUseCase, UserPort userPort) {
+        this.windowEmployeUseCase = windowEmployeUseCase;
         this.userPort = userPort;
     }
 
@@ -53,27 +56,79 @@ public class SalesEmployeController {
         return userPort.findByDocument(document);
     }
 
+    // ── Transfers ─────────────────────────────────────────────────────────────
+
+    @PostMapping("/transfers")
+    public ResponseEntity<TransferResponse> createTransfer(
+            @Valid @RequestBody TransferRequest request) {
+        Transfer transfer = toTransfer(request);
+        windowEmployeUseCase.createTransfer(transfer, getAuthenticatedUser());
+        return ResponseEntity.status(HttpStatus.CREATED).body(toTransferResponse(transfer));
+    }
+
+    @GetMapping("/transfers/{id}")
+    public ResponseEntity<TransferResponse> findTransferById(@PathVariable UUID id) {
+        Transfer transfer = windowEmployeUseCase.findTransferById(id);
+        return ResponseEntity.ok(toTransferResponse(transfer));
+    }
+
+    @GetMapping("/transfers/account/{accountId}")
+    public ResponseEntity<List<TransferResponse>> findTransfersByAccount(@PathVariable UUID accountId) {
+        List<TransferResponse> transfers = windowEmployeUseCase.findTransfersByAccount(accountId)
+                .stream().map(WindowEmployeController::toTransferResponse).toList();
+        return ResponseEntity.ok(transfers);
+    }
+
+    // ── Bank Accounts ─────────────────────────────────────────────────────────
+
+    @PostMapping("/bank_accounts")
+    public ResponseEntity<BankAccountResponse> createBankAccount(
+            @Valid @RequestBody BankAccountRequest request) {
+        BankAccount bankAccount = toBankAccount(request);
+        windowEmployeUseCase.createBankAccount(bankAccount, getAuthenticatedUser());
+        return ResponseEntity.status(HttpStatus.CREATED).body(toBankAccountResponse(bankAccount));
+    }
+
+    @GetMapping("/bank_accounts/{id}")
+    public ResponseEntity<BankAccountResponse> findBankAccountById(@PathVariable UUID id) {
+        BankAccount bankAccount = windowEmployeUseCase.findBankAccountById(id);
+        return ResponseEntity.ok(toBankAccountResponse(bankAccount));
+    }
+
+    @GetMapping("/bank_accounts/number/{accountNumber}")
+    public ResponseEntity<BankAccountResponse> findBankAccountByNumber(@PathVariable int accountNumber) {
+        BankAccount bankAccount = windowEmployeUseCase.findBankAccountByNumber(accountNumber);
+        return ResponseEntity.ok(toBankAccountResponse(bankAccount));
+    }
+
+    @GetMapping("/bank_accounts/customer/{document}")
+    public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
+        List<BankAccountResponse> accounts = windowEmployeUseCase.findBankAccountsByCustomer(document)
+                .stream().map(WindowEmployeController::toBankAccountResponse).toList();
+        return ResponseEntity.ok(accounts);
+    }
+
     // ── Customers ─────────────────────────────────────────────────────────────
 
     @PostMapping("/person_customer")
     public ResponseEntity<PersonCustomerResponse> createPersonCustomer(
             @Validated(OnCreate.class) @RequestBody PersonCustomerRequest request) {
         PersonCustomer personCustomer = toPersonCustomer(request);
-        salesEmployeUseCase.createPersonCustomer(personCustomer);
+        windowEmployeUseCase.createPersonCustomer(personCustomer);
         return ResponseEntity.status(HttpStatus.CREATED).body(toPersonCustomerResponse(personCustomer));
     }
 
-    @PostMapping("/coorporate_customer")
+    @PostMapping("/corporate_customer")
     public ResponseEntity<CorporateCustomerResponse> createCorporateCustomer(
             @Validated(OnSearch.class) @RequestBody CorporateCustomerRequest request) {
         CorporateCustomer corporateCustomer = toCorporateCustomer(request);
-        salesEmployeUseCase.createCorporateCustomer(corporateCustomer);
+        windowEmployeUseCase.createCorporateCustomer(corporateCustomer);
         return ResponseEntity.status(HttpStatus.CREATED).body(toCorporateCustomerResponse(corporateCustomer));
     }
 
     @GetMapping("/customer/{document}")
     public ResponseEntity<?> findCustomerByDocument(@PathVariable String document) {
-        Customer customer = salesEmployeUseCase.findCustomerByDocument(document);
+        Customer customer = windowEmployeUseCase.findCustomerByDocument(document);
         if (customer instanceof PersonCustomer person) {
             return ResponseEntity.ok(toPersonCustomerResponse(person));
         } else if (customer instanceof CorporateCustomer corporate) {
@@ -82,39 +137,56 @@ public class SalesEmployeController {
         return ResponseEntity.notFound().build();
     }
 
-    // ── Loans ─────────────────────────────────────────────────────────────────
+    // ── Users ─────────────────────────────────────────────────────────────────
 
-    @PostMapping("/loans")
-    public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody LoanRequest request) {
-        Loan loan = toLoan(request);
-        salesEmployeUseCase.createLoan(loan, getAuthenticatedUser());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toLoanResponse(loan));
+    @PostMapping("/users")
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request) {
+        User user = toUser(request);
+        windowEmployeUseCase.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toUserResponse(user));
     }
 
-    @GetMapping("/loans/customer/{document}")
-    public ResponseEntity<List<LoanResponse>> findLoansByCustomer(@PathVariable String document) {
-        List<LoanResponse> loans = salesEmployeUseCase.findLoansByCustomer(document)
-                .stream().map(SalesEmployeController::toLoanResponse).toList();
-        return ResponseEntity.ok(loans);
-    }
-
-    // ── Bank Accounts ─────────────────────────────────────────────────────────
-
-    @PostMapping("/bank_accounts")
-    public ResponseEntity<BankAccountResponse> createBankAccount(@Valid @RequestBody BankAccountRequest request) {
-        BankAccount bankAccount = toBankAccount(request);
-        salesEmployeUseCase.createBankAccount(bankAccount, getAuthenticatedUser());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toBankAccountResponse(bankAccount));
-    }
-
-    @GetMapping("/bank_accounts/customer/{document}")
-    public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
-        List<BankAccountResponse> accounts = salesEmployeUseCase.findBankAccountsByCustomer(document)
-                .stream().map(SalesEmployeController::toBankAccountResponse).toList();
-        return ResponseEntity.ok(accounts);
+    @GetMapping("/users/{document}")
+    public ResponseEntity<UserResponse> findUserByDocument(@PathVariable String document) {
+        User user = windowEmployeUseCase.findUserByDocument(document);
+        return ResponseEntity.ok(toUserResponse(user));
     }
 
     // ── Mappers ───────────────────────────────────────────────────────────────
+
+    private static Transfer toTransfer(TransferRequest req) {
+        Transfer transfer = new Transfer();
+        transfer.setIdCreator(req.getIdCreator());
+        transfer.setIdApprover(req.getIdApprover());
+        transfer.setAmount(req.getAmount());
+
+        BankAccount origin = new BankAccount();
+        origin.setAccountNumber(req.getOriginAccountNumber());
+        transfer.setOriginAccount(origin);
+
+        BankAccount destination = new BankAccount();
+        destination.setAccountNumber(req.getDestinationAccountNumber());
+        transfer.setDestinationAccount(destination);
+
+        return transfer;
+    }
+
+    private static User toUser(UserRequest req) {
+        User user = new User();
+        user.setFullName(req.getFullName());
+        user.setDocument(req.getDocument());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
+        user.setAddress(req.getAddress());
+        user.setRelatedId(req.getRelatedId());
+        user.setBirthDate(req.getBirthDate());
+        user.setSystemRole(req.getSystemRole());
+        user.setUserStatus(req.getUserStatus());
+        user.setUserName(req.getUserName());
+        user.setPassword(req.getPassword());
+        user.setCompany(req.getCompany());
+        return user;
+    }
 
     private static PersonCustomer toPersonCustomer(PersonCustomerRequest req) {
         PersonCustomer personCustomer = new PersonCustomer();
@@ -142,28 +214,6 @@ public class SalesEmployeController {
             corporateCustomer.setLegalRepresentative(toPersonCustomer(req.getLegalRepresentative()));
         }
         return corporateCustomer;
-    }
-
-    private static Loan toLoan(LoanRequest req) {
-        Loan loan = new Loan();
-        loan.setProductName(req.getProductName());
-        loan.setProductCategory(req.getProductCategory());
-        loan.setApproved(req.isApproved());
-        loan.setLoanType(req.getLoanType());
-        loan.setRequestedAmount(req.getRequestedAmount());
-        loan.setInterestRate(req.getInterestRate());
-        loan.setTermInMonths(req.getTermInMonths());
-        loan.setLoanStatus(req.getLoanStatus());
-        loan.setCreateDate(req.getCreateDate());
-        loan.setApprovalDate(req.getApprovalDate());
-        loan.setDisburseDate(req.getDisburseDate());
-        loan.setDisburseAccount(req.getDisburseAccount());
-        if (req.getCustomerOwner() != null) {
-            PersonCustomer customer = new PersonCustomer();
-            customer.setDocument(req.getCustomerOwner().getDocument());
-            loan.setCustomerOwner(customer);
-        }
-        return loan;
     }
 
     private static BankAccount toBankAccount(BankAccountRequest req) {
@@ -199,7 +249,7 @@ public class SalesEmployeController {
                 toPersonCustomerResponse(c.getLegalRepresentative()));
     }
 
-    private static CustomerResponse CustomerResponse(Customer c) {
+    private static CustomerResponse customerResponse(Customer c) {
         if (c instanceof PersonCustomer p) {
             return toPersonCustomerResponse(p);
         } else if (c instanceof CorporateCustomer co) {
@@ -208,21 +258,27 @@ public class SalesEmployeController {
         throw new RuntimeException("Tipo no soportado");
     }
 
-    private static LoanResponse toLoanResponse(Loan loan) {
-        return new LoanResponse(
-                loan.getId(), loan.getProductName(), loan.getProductCategory(),
-                loan.isApproved(), loan.getCustomerOwner(), loan.getLoanType(),
-                loan.getCustomerOwner(), loan.getRequestedAmount(), loan.getApprovedAmount(),
-                loan.getInterestRate(), loan.getTermInMonths(), loan.getLoanStatus(),
-                loan.getCreateDate(), loan.getApprovalDate(),
-                loan.getDisburseDate(), loan.getDisburseAccount());
+    private static TransferResponse toTransferResponse(Transfer t) {
+        return new TransferResponse(
+                t.getId(), t.getOriginAccount(), t.getDestinationAccount(),
+                t.getAmount(), t.getCreationDate(), t.getApprovalDate(),
+                t.getTransferStatus(), t.getIdCreator(), t.getIdApprover());
     }
 
     private static BankAccountResponse toBankAccountResponse(BankAccount b) {
         return new BankAccountResponse(
                 b.getId(), b.getProductName(), b.getProductCategory(),
-                b.isApproved(), CustomerResponse(b.getCustomerOwner()), b.getAccountNumber(),
+                b.isApproved(), customerResponse(b.getCustomerOwner()), b.getAccountNumber(),
                 b.getCurrentBalance(), b.getAccountStatus(), b.getOpeningDate(),
                 b.getAccountType(), b.getCurrencyType());
+    }
+
+    private static UserResponse toUserResponse(User u) {
+        return new UserResponse(
+                u.getFullName(), u.getDocument(), u.getEmail(),
+                u.getPhone(), u.getAddress(), u.getUserID(),
+                u.getRelatedId(), u.getBirthDate(), u.getSystemRole(),
+                u.getUserStatus(), u.getUserName(), u.getPassword(),
+                u.getCompany(), null);
     }
 }

@@ -2,7 +2,10 @@ package app.domain.models;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
+import app.domain.models.enums.OperationBitacora;
+import app.domain.models.enums.RolUser;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,9 +17,10 @@ import lombok.Setter;
 
 public class Bitacora {
     String id;
-    String operationType;
+    OperationBitacora operationType;
     Date operationDate;
-    User user;
-    Product product;
+    String userDocument;
+    RolUser rolUser;
+    UUID productId;
     Map<String, Object> detailData;
 }

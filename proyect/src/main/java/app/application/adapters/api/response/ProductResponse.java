@@ -1,10 +1,12 @@
 package app.application.adapters.api.response;
 
+import java.util.UUID;
+
 import app.domain.models.Customer;
 import app.domain.models.enums.ProductCategory;
 
 public record ProductResponse(
-    String id,
+    UUID id,
     String ProductName,
     ProductCategory productCategory,
     Boolean approved,

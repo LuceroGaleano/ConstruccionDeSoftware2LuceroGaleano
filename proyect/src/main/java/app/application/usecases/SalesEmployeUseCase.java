@@ -10,6 +10,7 @@ import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
 import app.domain.models.Loan;
 import app.domain.models.PersonCustomer;
+import app.domain.models.User;
 import app.domain.services.CreateBankAccount;
 import app.domain.services.CreateCorporateCustomer;
 import app.domain.services.CreateLoan;
@@ -57,16 +58,16 @@ public class SalesEmployeUseCase {
         return findCustomer.findCustomer(document);
     }
 
-    public void createLoan(Loan loan) throws BussinesException {
-        createLoan.createLoan(loan);
+    public void createLoan(Loan loan, User user) throws BussinesException {
+        createLoan.createLoan(loan, user);
     }
 
     public List<Loan> findLoansByCustomer(String document) throws BussinesException {
         return findLoan.findByCustomer(document);
     }
 
-    public void createBankAccount(BankAccount bankAccount) throws BussinesException {
-        createBankAccount.createBankAccount(bankAccount);
+    public void createBankAccount(BankAccount bankAccount, User user) throws BussinesException {
+    createBankAccount.createBankAccount(bankAccount, user);
     }
 
     public List<BankAccount> findBankAccountsByCustomer(String document) throws BussinesException {

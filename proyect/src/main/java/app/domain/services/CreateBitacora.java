@@ -29,13 +29,12 @@ public class CreateBitacora {
         }
 
         //Validamos que el usuario registrado exista
-        User user = userPort.findByDocument(bitacora.getUser().getDocument());
+        User user = userPort.findByDocument(bitacora.getUserDocument());
         if(user == null){
             throw new BussinesException("Usuario no encontrado");
         }
 
         //!Validamos que el producto exista
-        bitacora.setUser(user);
         bitacora.setOperationDate(new Date(System.currentTimeMillis()));
         bitacoraPort.save(bitacora);
     }

@@ -1,6 +1,7 @@
 package app.application.adapters.api.request;
 
 import java.sql.Date;
+import java.util.UUID;
 
 import app.domain.models.enums.RolUser;
 import app.domain.models.enums.UserStatus;
@@ -32,10 +33,7 @@ public class UserRequest {
     @NotBlank(message = "La dirección es obligatoria")
     private String address;
 
-    @NotNull(message = "El identificador del usuario es obligatorio")
-    private long userID;
-
-    private long relatedId;
+    private UUID relatedId;
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     @Past(message = "La fecha de nacimiento debe ser en el pasado")

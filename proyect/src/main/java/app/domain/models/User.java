@@ -1,6 +1,7 @@
 package app.domain.models;
 
 import java.sql.Date;
+import java.util.UUID;
 
 import app.domain.models.enums.RolUser;
 import app.domain.models.enums.UserStatus;
@@ -14,8 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class User extends Person{
-    private long userID;
-    private long relatedId;
+    private UUID userID;
+    private UUID relatedId;
     private Date birthDate;
     private RolUser systemRole;
     private UserStatus userStatus;

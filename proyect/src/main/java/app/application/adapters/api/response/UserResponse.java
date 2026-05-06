@@ -1,6 +1,7 @@
 package app.application.adapters.api.response;
 
 import java.sql.Date;
+import java.util.UUID;
 
 import app.domain.models.enums.RolUser;
 import app.domain.models.enums.UserStatus;
@@ -11,8 +12,8 @@ public record UserResponse(
     String email,
     String phone,
     String address,
-    long userID,
-    long relatedId,
+    UUID userID,
+    UUID relatedId,
     Date birthDate,
     RolUser systemRole,
     UserStatus userStatus,

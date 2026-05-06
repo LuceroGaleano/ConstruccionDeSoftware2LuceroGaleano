@@ -1,6 +1,7 @@
 package app.application.adapters.persistence.sql.entities;
 
 import java.sql.Date;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,8 +20,8 @@ import lombok.Setter;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userID;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID userID;
 
     @Column(name = "full_name")
     private String fullName;
@@ -38,7 +39,7 @@ public class UserEntity {
     private String address;
 
     @Column(name = "related_id")
-    private long relatedId;
+    private UUID relatedId;
 
     @Column(name = "birth_date")
     private Date birthDate;

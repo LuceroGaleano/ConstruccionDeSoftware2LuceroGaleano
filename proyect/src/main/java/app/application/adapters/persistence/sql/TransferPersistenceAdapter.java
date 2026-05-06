@@ -1,6 +1,7 @@
 package app.application.adapters.persistence.sql;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -26,17 +27,18 @@ public class TransferPersistenceAdapter implements TransferPort {
     }
 
     @Override
-    public void save(Transfer transfer){
-        transferRepository.save(toEntity(transfer));
+    public void save(Transfer transfer) {
+        TransferEntity saved = transferRepository.save(toEntity(transfer));
+        transfer.setId(saved.getId());
     }
 
     @Override
-    public void update(Transfer transfer){
+    public void update(Transfer transfer) {
         TransferEntity existingTransfer = transferRepository
                 .findById(transfer.getId())
                 .orElse(null);
 
-        if(existingTransfer != null){
+        if (existingTransfer != null) {
             existingTransfer.setAmount(transfer.getAmount());
             existingTransfer.setCreationDate(transfer.getCreationDate());
             existingTransfer.setApprovalDate(transfer.getApprovalDate());
@@ -51,12 +53,12 @@ public class TransferPersistenceAdapter implements TransferPort {
     }
 
     @Override
-    public boolean existsById(String id){
+    public boolean existsById(UUID id) {
         return id != null && transferRepository.existsById(id);
     }
 
-    @Override 
-    public Transfer findById(String id){
+    @Override
+    public Transfer findById(UUID id) {
         return transferRepository
                 .findById(id)
                 .map(this::toModel)
@@ -65,13 +67,12 @@ public class TransferPersistenceAdapter implements TransferPort {
 
     @Override
     public List<Transfer> findByOriginAccount(BankAccount bankAccount) {
-
         BankAccountEntity accountEntity = bankAccountRepository
                 .findById(bankAccount.getId())
                 .orElse(null);
 
-        if(accountEntity == null){
-            return List.of(); // evita errores
+        if (accountEntity == null) {
+            return List.of();
         }
 
         return transferRepository.findByOriginAccount(accountEntity)
@@ -80,7 +81,7 @@ public class TransferPersistenceAdapter implements TransferPort {
                 .collect(Collectors.toList());
     }
 
-    private Transfer toModel(TransferEntity e){
+    private Transfer toModel(TransferEntity e) {
         Transfer t = new Transfer();
         t.setId(e.getId());
         t.setAmount(e.getAmount());
@@ -94,7 +95,7 @@ public class TransferPersistenceAdapter implements TransferPort {
         return t;
     }
 
-    private TransferEntity toEntity(Transfer transfer){
+    private TransferEntity toEntity(Transfer transfer) {
         TransferEntity e = new TransferEntity();
 
         e.setAmount(transfer.getAmount());
@@ -106,17 +107,15 @@ public class TransferPersistenceAdapter implements TransferPort {
         e.setIdCreator(transfer.getIdCreator());
         e.setIdApprover(transfer.getIdApprover());
 
-        if(transfer.getOriginAccount() != null){
+        if (transfer.getOriginAccount() != null) {
             BankAccountEntity origin = bankAccountRepository
-                    .findById(transfer.getOriginAccount().getId())
-                    .orElse(null);
+                    .findByAccountNumber(transfer.getOriginAccount().getAccountNumber());
             e.setOriginAccount(origin);
         }
 
-        if(transfer.getDestinationAccount() != null){
+        if (transfer.getDestinationAccount() != null) {
             BankAccountEntity destination = bankAccountRepository
-                    .findById(transfer.getDestinationAccount().getId())
-                    .orElse(null);
+                    .findByAccountNumber(transfer.getDestinationAccount().getAccountNumber());
             e.setDestinationAccount(destination);
         }
 

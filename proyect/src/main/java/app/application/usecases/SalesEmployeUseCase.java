@@ -21,6 +21,7 @@ import app.domain.services.FindLoan;
 
 @Service
 public class SalesEmployeUseCase {
+
     private final CreatePersonCustomer createPersonCustomer;
     private final CreateCorporateCustomer createCorporateCustomer;
     private final FindCustomer findCustomer;
@@ -67,7 +68,7 @@ public class SalesEmployeUseCase {
     }
 
     public void createBankAccount(BankAccount bankAccount, User user) throws BussinesException {
-    createBankAccount.createBankAccount(bankAccount, user);
+        createBankAccount.createBankAccount(bankAccount, user);
     }
 
     public List<BankAccount> findBankAccountsByCustomer(String document) throws BussinesException {

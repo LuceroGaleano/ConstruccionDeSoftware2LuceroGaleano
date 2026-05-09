@@ -38,13 +38,22 @@ public class CustomerPersistenceAdapter implements CustomerPort {
     public void update(Customer customer) {
         CustomerEntity existingCustomer = customerRepository.findByDocument(customer.getDocument());
         if (existingCustomer != null) {
-            existingCustomer.setFullName(customer.getFullName());
-            existingCustomer.setDocument(customer.getDocument());
-            existingCustomer.setEmail(customer.getEmail());
-            existingCustomer.setPhone(customer.getPhone());
-            existingCustomer.setAddress(customer.getAddress());
-            existingCustomer.setRolCustomer(customer.getRolCustomer() != null ? customer.getRolCustomer().toString() : null);
-            existingCustomer.setCustomerStatus(customer.getCustomerStatus() != null ? customer.getCustomerStatus().toString() : null);
+            if (customer.getFullName() != null) existingCustomer.setFullName(customer.getFullName());
+            if (customer.getEmail() != null) existingCustomer.setEmail(customer.getEmail());
+            if (customer.getPhone() != null) existingCustomer.setPhone(customer.getPhone());
+            if (customer.getAddress() != null) existingCustomer.setAddress(customer.getAddress());
+            if (customer.getRolCustomer() != null) existingCustomer.setRolCustomer(customer.getRolCustomer().toString());
+            if (customer.getCustomerStatus() != null) existingCustomer.setCustomerStatus(customer.getCustomerStatus().toString());
+
+            // Si es corporateCustomer actualizar el representante legal
+            if (customer instanceof CorporateCustomer cc && existingCustomer instanceof CorporateCustomerEntity ce) {
+                if (cc.getLegalRepresentative() != null && cc.getLegalRepresentative().getDocument() != null) {
+                    PersonCustomerEntity legalEntity = (PersonCustomerEntity) customerRepository
+                            .findByDocument(cc.getLegalRepresentative().getDocument());
+                    if (legalEntity != null) ce.setLegalRepresentative(legalEntity);
+                }
+            }
+
             customerRepository.save(existingCustomer);
         }
     }

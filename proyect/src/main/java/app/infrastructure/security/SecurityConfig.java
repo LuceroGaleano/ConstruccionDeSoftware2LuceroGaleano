@@ -33,23 +33,20 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
             // Login público
             .requestMatchers("/auth/**").permitAll()
-            
-
-            // WindowEmployee
+            //windowEmployee
             .requestMatchers("/window_employe/**").hasRole("WindowEmployee")
-
-            // SalesEmployee
+            //salesEmployee
             .requestMatchers("/sales_employe/**").hasRole("SalesEmployee")
-
-            // PersonCustomerUser
-            .requestMatchers("/person_customer/**").hasRole("PersonCustomerUser")
-
-            // CorporateEmployee y CorporateSupervisor (aprobaciones)
-            .requestMatchers("/corporate_employe/**").hasAnyRole("CorporateEmployee", "CorporateSupervisor")
-
-            // InternalAnalyst
+            //personCustomerUser
+            .requestMatchers("/person_customer_user/**").hasRole("PersonCustomerUser")
+            //corporateCustomerUser
+            .requestMatchers("/corporate_customer_user/**").hasRole("CorporateCustomerUser")
+            //corporateEmployee
+            .requestMatchers("/corporate_employe/**").hasRole("CorporateEmployee")
+            //corporateSupervisor
+            .requestMatchers("/corporate_supervisor/**").hasRole("CorporateSupervisor")
+            //internalAnalyst
             .requestMatchers("/internal_analyst/**").hasRole("InternalAnalyst")
-
             .anyRequest().authenticated()
         )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

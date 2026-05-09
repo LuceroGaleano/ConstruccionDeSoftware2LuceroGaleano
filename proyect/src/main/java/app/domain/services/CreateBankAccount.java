@@ -69,7 +69,7 @@ public class CreateBankAccount {
         bankAccount.setApproved(false);
         bankAccount.setAccountNumber(accountNumber);
         bankAccount.setProductName("Cuenta" + bankAccount.getAccountNumber() + " de " + customer.getFullName());
-        bankAccount.setCurrentBalance(BigDecimal.ONE);
+        bankAccount.setCurrentBalance(new BigDecimal("10000000"));
         bankAccount.setProductCategory(ProductCategory.BankAccount);
         bankAccount.setCustomerOwner(customer);
         bankAccount.setAccountStatus(AccountStatus.Active);

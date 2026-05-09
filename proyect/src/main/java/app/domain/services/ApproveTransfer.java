@@ -54,7 +54,7 @@ public class ApproveTransfer {
         User creator = userPort.findByDocument(transfer.getIdCreator());
         if(!approver.getCompany().equals(creator.getCompany())){
             throw new BussinesException("El usuario aprobador y el creador de la transferencia no pertenecen a la misma empresa");
-         }
+     }
 
         Map<String, Object> detailData = Map.of(
             "balanceBeforeOrigin", transfer.getOriginAccount().getCurrentBalance(),

@@ -41,7 +41,8 @@ public class LoanPersistenceAdapter implements LoanPort {
 
     @Override
     public void save(Loan loan) {
-        loanRepository.save(toEntity(loan));
+        LoanEntity savedEntity = loanRepository.save(toEntity(loan));
+        loan.setId(savedEntity.getId());
     }
 
     @Override

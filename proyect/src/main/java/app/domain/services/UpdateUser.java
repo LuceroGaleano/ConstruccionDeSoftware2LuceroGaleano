@@ -13,49 +13,57 @@ import app.domain.ports.UserPort;
 public class UpdateUser {
     private final UserPort userPort;
     private final CustomerPort customerPort;
-    
+
     @Autowired
-    public UpdateUser(UserPort userPort, CustomerPort customerPort){
+    public UpdateUser(UserPort userPort, CustomerPort customerPort) {
         this.userPort = userPort;
         this.customerPort = customerPort;
     }
 
-    public void updateUser(User user) throws BussinesException{
-        //Validar que el usuario exista
-        if(!userPort.existsByDocument(user.getDocument())){
+    public void updateUser(User user) throws BussinesException {
+
+        // Validar que el usuario exista
+        if (!userPort.existsByDocument(user.getDocument())) {
             throw new BussinesException("No existe un usuario con ese documento");
         }
 
-        //Validar que el userName no este repetido, si existe se lanza excepcion
-        if(userPort.existsByUserName(user.getUserName())){
-            throw new BussinesException("Nombre de usuario ya existente");
+        // Obtener el usuario actual para comparar
+        User existingUser = userPort.findByDocument(user.getDocument());
+
+        // Validar userName solo si cambió
+        if (user.getUserName() != null && !user.getUserName().equals(existingUser.getUserName())) {
+            if (userPort.existsByUserName(user.getUserName())) {
+                throw new BussinesException("Nombre de usuario ya existente");
+            }
         }
 
-        //Validar que el email no este repetido
-        if(userPort.existsByEmail(user.getEmail())){
-            throw new BussinesException("Ya existe un usuario con ese email");
+        // Validar email solo si cambió
+        if (user.getEmail() != null && !user.getEmail().equals(existingUser.getEmail())) {
+            if (userPort.existsByEmail(user.getEmail())) {
+                throw new BussinesException("Ya existe un usuario con ese email");
+            }
         }
 
-        //Si existe un cliente con la misma identificación también debe actualizar los datos del cliente
-        //Si ya existe un cliente con la misma identificación, debemos validar que los datos coincidan
-        //Si no coinciden se lanza una excepcion
-        if(customerPort.existsByDocument(user.getDocument())){
-            if(!hasMatchingData(user)){
-                throw new BussinesException("Hemos encontrado un cliente con la misma identificación, sin embargo, sus datos no coinciden");
+        // Si existe un cliente con la misma identificación, actualizar sus datos
+        if (customerPort.existsByDocument(user.getDocument())) {
+            Customer existingCustomer = customerPort.findByDocument(user.getDocument());
+            if (existingCustomer != null) {
+                existingCustomer.setFullName(user.getFullName());
+                existingCustomer.setEmail(user.getEmail());
+                existingCustomer.setPhone(user.getPhone());
+                existingCustomer.setAddress(user.getAddress());
+                customerPort.update(existingCustomer);
             }
         }
         userPort.update(user);
     }
 
-    //Metodo que compara la informacion del usuario la del cliente
-    private boolean hasMatchingData(User user){
+    private boolean hasMatchingData(User user) {
         Customer customer = customerPort.findByDocument(user.getDocument());
-        //Validar dato por dato que tienen en comun customer con userw
-        boolean isConsistent = (customer.getFullName().equals(user.getFullName()) && 
-        customer.getDocument().equals(user.getDocument()) &&
-        customer.getEmail().equals(user.getEmail()) &&
-        customer.getPhone().equals(user.getPhone()) &&
-        customer.getAddress().equals(user.getAddress()));
-        return isConsistent;
+        return (customer.getFullName().equals(user.getFullName()) &&
+                customer.getDocument().equals(user.getDocument()) &&
+                customer.getEmail().equals(user.getEmail()) &&
+                customer.getPhone().equals(user.getPhone()) &&
+                customer.getAddress().equals(user.getAddress()));
     }
 }

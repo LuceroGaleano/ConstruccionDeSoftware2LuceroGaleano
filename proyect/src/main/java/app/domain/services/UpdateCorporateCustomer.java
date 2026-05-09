@@ -7,16 +7,19 @@ import app.domain.Exception.BussinesException;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.ports.CustomerPort;
+import app.domain.ports.UserPort;
 
 @Service
 public class UpdateCorporateCustomer {
     private final CustomerPort customerPort;
     private final CreatePersonCustomer createPersonCustomer;
+    private final UserPort userPort;
 
     @Autowired
-    public UpdateCorporateCustomer(CustomerPort customerPort, CreatePersonCustomer createPersonCustomer){
+    public UpdateCorporateCustomer(CustomerPort customerPort, CreatePersonCustomer createPersonCustomer, UserPort userPort){
         this.customerPort = customerPort;
         this.createPersonCustomer = createPersonCustomer;
+        this.userPort = userPort;
     }
 
     public void updateCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
@@ -32,6 +35,10 @@ public class UpdateCorporateCustomer {
         //Validar que la persona representante este activo
         if(corporateCustomer.getLegalRepresentative().getCustomerStatus() != CustomerStatus.Active){
             throw new BussinesException("El representante legal no esta activo en el sistema");
+        }
+
+        if(userPort.existsByDocument(corporateCustomer.getDocument())){
+            userPort.update(userPort.findByDocument(corporateCustomer.getDocument()));
         }
 
         customerPort.update(corporateCustomer);

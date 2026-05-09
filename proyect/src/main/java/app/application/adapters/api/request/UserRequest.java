@@ -16,38 +16,38 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRequest {
-    @NotBlank(message = "El nombre completo es obligatorio")
+    @NotBlank(message = "El nombre completo es obligatorio", groups = OnCreate.class)
     private String fullName;
 
-    @NotBlank(message = "La identificación es obligatoria")
+    @NotBlank(message = "La identificación es obligatoria", groups = OnCreate.class)
     private String document;
 
-    @NotBlank(message = "El correo es obligatorio")
+    @NotBlank(message = "El correo es obligatorio", groups = OnCreate.class)
     @Email(message = "El correo debe tener un formato válido")
     private String email;
 
-    @NotBlank(message = "El teléfono es obligatorio")
+    @NotBlank(message = "El teléfono es obligatorio", groups = OnCreate.class)
     @Pattern(regexp = "\\d{7,15}", message = "El telefono debe tener entre 7 y 15 dígitos")
     private String phone;
 
-    @NotBlank(message = "La dirección es obligatoria")
+    @NotBlank(message = "La dirección es obligatoria", groups = OnCreate.class)
     private String address;
 
     private UUID relatedId;
 
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
+    @NotNull(message = "La fecha de nacimiento es obligatoria", groups = OnCreate.class)
     @Past(message = "La fecha de nacimiento debe ser en el pasado")
     private Date birthDate;
 
-    @NotNull(message = "El rol del sistema es obligatorio")
+    @NotNull(message = "El rol del sistema es obligatorio", groups = OnCreate.class)
     private RolUser systemRole;
 
     private UserStatus userStatus;
 
-    @NotBlank(message = "El nombre de usuario es obligatorio")
+    @NotBlank(message = "El nombre de usuario es obligatorio", groups = OnCreate.class)
     private String userName;
 
-    @NotBlank(message = "La contraseña es obligatoria")
+    @NotBlank(message = "La contraseña es obligatoria", groups = OnCreate.class)
     private String password;
 
     private String company;

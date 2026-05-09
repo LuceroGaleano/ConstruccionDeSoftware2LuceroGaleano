@@ -15,13 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import app.application.adapters.api.request.LoanRequest;
-import app.application.adapters.api.request.TransferRequest;
 import app.application.adapters.api.response.BankAccountResponse;
 import app.application.adapters.api.response.CustomerResponse;
 import app.application.adapters.api.response.LoanResponse;
 import app.application.adapters.api.response.PersonCustomerResponse;
 import app.application.adapters.api.response.TransferResponse;
-import app.application.usecases.PersonCustomerUserUseCase;
+import app.application.usecases.CorporateCustomerUseCase;
 import app.domain.models.BankAccount;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
@@ -33,15 +32,15 @@ import app.domain.ports.UserPort;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/person_customer_user")
-public class PersonCustomerController {
+@RequestMapping("/corporate_customer_user")
+public class CorporateCustomerController {
 
     @Autowired
-    private final PersonCustomerUserUseCase personCustomerUserUseCase;
+    private final CorporateCustomerUseCase corporateCustomerUseCase;
     private final UserPort userPort;
 
-    public PersonCustomerController(PersonCustomerUserUseCase personCustomerUserUseCase, UserPort userPort) {
-        this.personCustomerUserUseCase = personCustomerUserUseCase;
+    public CorporateCustomerController(CorporateCustomerUseCase corporateCustomerUseCase, UserPort userPort) {
+        this.corporateCustomerUseCase = corporateCustomerUseCase;
         this.userPort = userPort;
     }
 
@@ -56,45 +55,37 @@ public class PersonCustomerController {
     public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody LoanRequest request) {
         User user = getAuthenticatedUser();
         Loan loan = toLoan(request);
-        personCustomerUserUseCase.createLoan(user, loan);
+        corporateCustomerUseCase.createLoan(user, loan);
         return ResponseEntity.status(HttpStatus.CREATED).body(toLoanResponse(loan));
     }
 
     @GetMapping("/loans")
     public ResponseEntity<List<LoanResponse>> findMyLoans() {
         User user = getAuthenticatedUser();
-        List<LoanResponse> loans = personCustomerUserUseCase.findMyLoans(user)
-                .stream().map(PersonCustomerController::toLoanResponse).toList();
+        List<LoanResponse> loans = corporateCustomerUseCase.findMyLoans(user)
+                .stream().map(CorporateCustomerController::toLoanResponse).toList();
         return ResponseEntity.ok(loans);
     }
 
     // ── Transfers ─────────────────────────────────────────────────────────────
 
-    @PostMapping("/transfers")
-    public ResponseEntity<TransferResponse> createTransfer(@Valid @RequestBody TransferRequest request) {
-        User user = getAuthenticatedUser();
-        Transfer transfer = toTransfer(request);
-        personCustomerUserUseCase.createTransfer(user, transfer);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toTransferResponse(transfer));
-    }
-
-
     @GetMapping("/transfers/account/{accountNumber}")
     public ResponseEntity<List<TransferResponse>> findTransfersByAccount(@PathVariable int accountNumber) {
         User user = getAuthenticatedUser();
-        List<TransferResponse> transfers = personCustomerUserUseCase.findTransfersByAccount(accountNumber, user)
-                .stream().map(PersonCustomerController::toTransferResponse).toList();
+        List<TransferResponse> transfers = corporateCustomerUseCase.findTransfersByAccount(accountNumber, user)
+                .stream().map(CorporateCustomerController::toTransferResponse).toList();
         return ResponseEntity.ok(transfers);
     }
 
     // ── Bank Accounts ─────────────────────────────────────────────────────────
 
+
     @GetMapping("/bank_accounts")
     public ResponseEntity<List<BankAccountResponse>> findMyAccounts() {
         User user = getAuthenticatedUser();
-        List<BankAccountResponse> accounts = personCustomerUserUseCase
-                .findAccountByCustomer(user.getDocument())
-                .stream().map(PersonCustomerController::toBankAccountResponse).toList();
+        List<BankAccountResponse> accounts = corporateCustomerUseCase
+                .findBankAccountsByCustomer(user.getDocument())
+                .stream().map(CorporateCustomerController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }
 
@@ -108,24 +99,11 @@ public class PersonCustomerController {
         loan.setTermInMonths(req.getTermInMonths());
         loan.setDisburseAccount(req.getDisburseAccount());
         if (req.getCustomerOwner() != null) {
-            PersonCustomer customer = new PersonCustomer();
+            CorporateCustomer customer = new CorporateCustomer();
             customer.setDocument(req.getCustomerOwner().getDocument());
             loan.setCustomerOwner(customer);
         }
         return loan;
-    }
-
-    private static Transfer toTransfer(TransferRequest req) {
-        Transfer transfer = new Transfer();
-        transfer.setAmount(req.getAmount());
-        transfer.setIdApprover(req.getIdApprover());
-        BankAccount origin = new BankAccount();
-        origin.setAccountNumber(req.getOriginAccountNumber());
-        transfer.setOriginAccount(origin);
-        BankAccount destination = new BankAccount();
-        destination.setAccountNumber(req.getDestinationAccountNumber());
-        transfer.setDestinationAccount(destination);
-        return transfer;
     }
 
     private static LoanResponse toLoanResponse(Loan loan) {

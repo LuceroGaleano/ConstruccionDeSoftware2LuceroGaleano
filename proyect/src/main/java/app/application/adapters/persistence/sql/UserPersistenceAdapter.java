@@ -5,8 +5,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import app.application.adapters.persistence.sql.entities.CorporateCustomerEntity;
+import app.application.adapters.persistence.sql.entities.CustomerEntity;
+import app.application.adapters.persistence.sql.entities.PersonCustomerEntity;
 import app.application.adapters.persistence.sql.entities.UserEntity;
+import app.application.adapters.persistence.sql.repositories.CustomerRepository;
 import app.application.adapters.persistence.sql.repositories.UserRepository;
+import app.domain.models.CorporateCustomer;
+import app.domain.models.PersonCustomer;
 import app.domain.models.User;
 import app.domain.models.enums.RolUser;
 import app.domain.models.enums.UserStatus;
@@ -15,9 +21,11 @@ import app.domain.ports.UserPort;
 @Service
 public class UserPersistenceAdapter implements UserPort {
     private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
 
-    public UserPersistenceAdapter(UserRepository userRepository) {
+    public UserPersistenceAdapter(UserRepository userRepository, CustomerRepository customerRepository) {
         this.userRepository = userRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -41,11 +49,15 @@ public class UserPersistenceAdapter implements UserPort {
             existingUser.setUserName(user.getUserName());
             existingUser.setPassword(user.getPassword());
             existingUser.setCompany(user.getCompany());
+            if (user.getCustomer() != null) {
+                CustomerEntity customerEntity = customerRepository.findByDocument(user.getCustomer().getDocument());
+                existingUser.setCustomer(customerEntity);
+            }
             userRepository.save(existingUser);
         }
     }
 
-    @Override 
+    @Override
     public void deleteByDocument(String document) {
         userRepository.deleteByDocument(document);
     }
@@ -76,7 +88,7 @@ public class UserPersistenceAdapter implements UserPort {
     }
 
     @Override
-    public List<User> findAll(){
+    public List<User> findAll() {
         return userRepository.findAll().stream()
                 .map(this::toModel).collect(Collectors.toList());
     }
@@ -95,6 +107,10 @@ public class UserPersistenceAdapter implements UserPort {
         e.setUserName(user.getUserName());
         e.setPassword(user.getPassword());
         e.setCompany(user.getCompany());
+        if (user.getCustomer() != null) {
+            CustomerEntity customerEntity = customerRepository.findByDocument(user.getCustomer().getDocument());
+            e.setCustomer(customerEntity);
+        }
         return e;
     }
 
@@ -113,6 +129,17 @@ public class UserPersistenceAdapter implements UserPort {
         user.setUserName(e.getUserName());
         user.setPassword(e.getPassword());
         user.setCompany(e.getCompany());
+        if (e.getCustomer() instanceof PersonCustomerEntity pc) {
+            PersonCustomer customer = new PersonCustomer();
+            customer.setDocument(pc.getDocument());
+            customer.setFullName(pc.getFullName());
+            user.setCustomer(customer);
+        } else if (e.getCustomer() instanceof CorporateCustomerEntity cc) {
+            CorporateCustomer customer = new CorporateCustomer();
+            customer.setDocument(cc.getDocument());
+            customer.setFullName(cc.getFullName());
+            user.setCustomer(customer);
+        }
         return user;
     }
 }

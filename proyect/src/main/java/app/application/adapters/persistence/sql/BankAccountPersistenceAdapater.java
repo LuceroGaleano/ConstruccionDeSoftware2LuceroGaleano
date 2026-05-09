@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import app.application.adapters.persistence.sql.entities.BankAccountEntity;
 import app.application.adapters.persistence.sql.entities.CorporateCustomerEntity;
 import app.application.adapters.persistence.sql.entities.CustomerEntity;
+import app.application.adapters.persistence.sql.entities.LoanEntity;
 import app.application.adapters.persistence.sql.entities.PersonCustomerEntity;
 import app.application.adapters.persistence.sql.repositories.BankAccountRepository;
 import app.application.adapters.persistence.sql.repositories.CustomerRepository;
@@ -34,7 +35,8 @@ public class BankAccountPersistenceAdapater implements BankAccountPort{
 
     @Override
     public void save(BankAccount bankAccount){
-        bankAccountRepository.save(toEntity(bankAccount));
+        BankAccountEntity savedEntity = bankAccountRepository.save(toEntity(bankAccount));
+        bankAccount.setId(savedEntity.getId());
     }
 
     @Override

@@ -24,47 +24,51 @@ public class ExecuteTransfer {
         this.bankAccountPort = bankAccountPort;
     }
     
-    public void executeTransfer(Transfer transfer) throws  BussinesException{
-        if(transfer == null){
+    public void executeTransfer(Transfer transfer) throws BussinesException {
+
+        if (transfer == null) {
             throw new BussinesException("Transferencia no encontrada");
         }
 
-        BankAccount origenAccount = transfer.getOriginAccount();
-        BankAccount destinationAccount = transfer.getDestinationAccount();
+        BankAccount origenAccount = bankAccountPort.findByAccountNumber(
+            transfer.getOriginAccount().getAccountNumber()
+        );
 
-        //Validamos que la cuenta de origen y cuenta destino no sea la misma
-        if(origenAccount.getAccountNumber() == destinationAccount.getAccountNumber()){
-            throw new BussinesException("No es posible realizar transferencia a la misma cuenta");
+        BankAccount destinationAccount = bankAccountPort.findByAccountNumber(
+            transfer.getDestinationAccount().getAccountNumber()
+        );
+
+        if (origenAccount == null || destinationAccount == null) {
+            throw new BussinesException("Cuenta no encontrada");
         }
 
-        //Validamos que la cuenta de origen y destino este activa
-        if(origenAccount.getAccountStatus() != AccountStatus.Active){
+
+        if (origenAccount.getAccountStatus() != AccountStatus.Active) {
             throw new BussinesException("La cuenta de origen no puede enviar transferencias");
         }
 
-        if(destinationAccount.getAccountStatus() != AccountStatus.Active){
+        if (destinationAccount.getAccountStatus() != AccountStatus.Active) {
             throw new BussinesException("La cuenta de destino no puede recibir transferencias");
         }
 
-        //Validamos que la cuenta de origen tenga el saldo suficiente
-        if(origenAccount.getCurrentBalance().compareTo(transfer.getAmount())<0){
+        if (origenAccount.getCurrentBalance().compareTo(transfer.getAmount()) < 0) {
             throw new BussinesException("Fondos insuficientes");
         }
-        
-        updateBalances(transfer);
+
+        updateBalances(origenAccount, destinationAccount, transfer);
+
         transfer.setTransferStatus(TransferStatus.Executed);
         transferPort.update(transfer);
     }
 
-        //Si todo ha salido bien en la transferencia, debemos modificar el monto de cuenta origen y destino
-    private void updateBalances(Transfer transfer){
-        BankAccount origenAccount = transfer.getOriginAccount();
-        BankAccount destinationAccount = transfer.getDestinationAccount();
+    //Si todo ha salido bien en la transferencia, debemos modificar el monto de cuenta origen y destino
+    private void updateBalances(BankAccount origenAccount, BankAccount destinationAccount, Transfer transfer) {
+
         BigDecimal amount = transfer.getAmount();
 
         origenAccount.setCurrentBalance(origenAccount.getCurrentBalance().subtract(amount));
         destinationAccount.setCurrentBalance(destinationAccount.getCurrentBalance().add(amount));
-        
+
         bankAccountPort.update(origenAccount);
         bankAccountPort.update(destinationAccount);
     }

@@ -14,6 +14,7 @@ import app.domain.models.Transfer;
 import app.domain.models.User;
 import app.domain.models.enums.AccountType;
 import app.domain.models.enums.OperationBitacora;
+import app.domain.models.enums.RolUser;
 import app.domain.models.enums.TransferStatus;
 import app.domain.ports.BankAccountPort;
 import app.domain.ports.BitacoraPort;
@@ -67,8 +68,25 @@ public class CreateTransfer {
             throw new BussinesException("No se ha encontrado la cuenta de destino");
         }
 
-        transfer.setOriginAccount(origenAccountFull);
-        transfer.setDestinationAccount(destinationAccountFull);
+        if(!origenAccountFull.getCustomerOwner().getDocument().equals(user.getDocument()) &&
+        (user.getSystemRole().equals(RolUser.PersonCustomerUser) ||
+            user.getSystemRole().equals(RolUser.CorporateCustomerUser))) {
+
+            throw new BussinesException("No puedes crear esta transferencia, no eres dueño de la cuenta bancaria");
+        }
+
+        // Si es CorporateCustomer validamos que la cuenta si sea de la empresa
+        if (user.getSystemRole().equals(RolUser.CorporateEmployee)) {
+            if (!origenAccountFull.getCustomerOwner().getDocument()
+                    .equals(user.getCustomer().getDocument())) {
+                System.out.println(origenAccountFull.getCustomerOwner().getDocument());
+                System.out.println(user.getCustomer().getDocument());
+
+                throw new BussinesException(
+                    "La empresa no es dueña de la cuenta bancaria"
+                );
+            }
+        }
 
         // Validamos que el creador de la transferencia exista
         User createUser = userPort.findByDocument(transfer.getIdCreator());
@@ -82,8 +100,8 @@ public class CreateTransfer {
 
         //Crear detalles para bitacora
         Map<String, Object> detailData = Map.of(
-            "balanceBeforeOrigin", transfer.getOriginAccount().getCurrentBalance(),
-            "balanceBeforeDestination", transfer.getDestinationAccount().getCurrentBalance()
+            "balanceBeforeOrigin", origenAccountFull.getCurrentBalance(),
+            "balanceBeforeDestination", destinationAccountFull.getCurrentBalance()
         );
 
         //Guardada la transferencia cambiamos el monto
@@ -101,9 +119,9 @@ public class CreateTransfer {
         //Bitacora
         //Actualizamos detalles para bitacora 
         detailData = Map.of(
-            "amountTransfer", transfer.getAmount(),
-            "balanceAfterOrigin", transfer.getOriginAccount().getCurrentBalance(),
-            "balanceAfterDestination", transfer.getDestinationAccount().getCurrentBalance()
+        "amountTransfer", transfer.getAmount(),
+        "balanceBeforeOrigin", origenAccountFull.getCurrentBalance(),
+        "balanceBeforeDestination", destinationAccountFull.getCurrentBalance()
         );
 
         Bitacora bitacora = new Bitacora();

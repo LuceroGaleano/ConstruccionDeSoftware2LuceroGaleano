@@ -6,9 +6,12 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import app.domain.Exception.BussinesException;
 import app.domain.Exception.NotFoundException;
 import app.domain.models.BankAccount;
 import app.domain.models.Customer;
+import app.domain.models.User;
+import app.domain.models.enums.RolUser;
 import app.domain.ports.BankAccountPort;
 import app.domain.ports.CustomerPort;
 
@@ -31,10 +34,15 @@ public class FindBankAccount {
         return bankAccount;
     }
 
-    public BankAccount findByAccountNumber(int accountNumber) throws NotFoundException{
+    public BankAccount findByAccountNumber(int accountNumber, User user) throws NotFoundException, BussinesException{
         BankAccount bankAccount = bankAccountPort.findByAccountNumber(accountNumber);
         if(bankAccount == null){
             throw new NotFoundException("Cuenta bancaria no encontrada");
+        }
+        if(!bankAccount.getCustomerOwner().getDocument().equals(user.getDocument()) &&
+        (user.getSystemRole().equals(RolUser.PersonCustomerUser) ||
+        user.getSystemRole().equals(RolUser.CorporateCustomerUser))){
+            throw new BussinesException("No puedes ver esta cuenta bancarias, no eres dueño de la cuenta bancaria");
         }
         return bankAccount;
     }

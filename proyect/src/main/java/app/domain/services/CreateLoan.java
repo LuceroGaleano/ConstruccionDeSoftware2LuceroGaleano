@@ -17,6 +17,7 @@ import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.LoanStatus;
 import app.domain.models.enums.OperationBitacora;
 import app.domain.models.enums.ProductCategory;
+import app.domain.models.enums.RolUser;
 import app.domain.ports.BankAccountPort;
 import app.domain.ports.BitacoraPort;
 import app.domain.ports.CustomerPort;
@@ -69,6 +70,10 @@ public class CreateLoan {
         // Validamos que el propietario de la cuenta sea el cliente solicitante
         if(!bankAccount.getCustomerOwner().getDocument().equals(customer.getDocument())){
             throw new BussinesException("La cuenta de desembolso no pertenece al cliente solicitante");
+        }
+
+        if(!user.getDocument().equals(customer.getDocument()) && (user.getSystemRole().equals(RolUser.PersonCustomerUser) || user.getSystemRole().equals(RolUser.CorporateCustomerUser))){
+            throw new BussinesException("No puedes solicitar un prestamo para otro cliente");
         }
 
         loan.setApproved(true);

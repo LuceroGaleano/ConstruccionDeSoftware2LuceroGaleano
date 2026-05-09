@@ -1,6 +1,7 @@
 package app.application.adapters.persistence.mongodb;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -57,7 +58,7 @@ public class BitacoraPersistenceAdapter implements BitacoraPort {
         doc.setOperationDate(bitacora.getOperationDate());
         doc.setUserDocument(bitacora.getUserDocument());
         doc.setRolUser(bitacora.getRolUser() != null ? bitacora.getRolUser().toString() : null);
-        doc.setProductId(bitacora.getProductId());
+        doc.setProductId(bitacora.getProductId().toString());
         doc.setDetailData(bitacora.getDetailData());
         return doc;
     }
@@ -67,7 +68,7 @@ public class BitacoraPersistenceAdapter implements BitacoraPort {
         bitacora.setId(doc.getId());
         bitacora.setOperationDate(doc.getOperationDate());
         bitacora.setUserDocument(doc.getUserDocument());
-        bitacora.setProductId(doc.getProductId());
+        bitacora.setProductId(UUID.fromString(doc.getProductId()));
         bitacora.setDetailData(doc.getDetailData());
         return bitacora;
     }

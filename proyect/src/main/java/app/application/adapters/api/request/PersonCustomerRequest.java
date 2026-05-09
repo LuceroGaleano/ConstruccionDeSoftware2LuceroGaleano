@@ -1,13 +1,9 @@
 package app.application.adapters.api.request;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 
-import app.domain.models.Product;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.RolCustomer;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -36,8 +32,6 @@ public class PersonCustomerRequest  extends CustomerRequest{
     private RolCustomer rolCustomer;
     private CustomerStatus customerStatus;
 
-    @Valid
-    private List<Product> listProducts = new ArrayList<>();
 
     @NotNull(message = "La fecha de nacimiento es obligatoria", groups = OnCreate.class)
     @Past(message = "La fecha de nacimiento debe ser en el pasado", groups = OnCreate.class)

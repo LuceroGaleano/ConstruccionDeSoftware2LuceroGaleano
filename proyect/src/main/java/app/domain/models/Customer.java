@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 
+
 public abstract  class Customer extends Person {
     private RolCustomer rolCustomer;
     private CustomerStatus customerStatus;

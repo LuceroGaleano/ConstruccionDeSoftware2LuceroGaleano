@@ -3,6 +3,8 @@ package app.domain.services;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
 import app.domain.Exception.BussinesException;
 import app.domain.models.Bitacora;
 import app.domain.models.Transfer;
@@ -12,6 +14,7 @@ import app.domain.models.enums.TransferStatus;
 import app.domain.ports.BitacoraPort;
 import app.domain.ports.TransferPort;
 
+@Service
 public class RejectTransfer {
     private final TransferPort transferPort;
     private final BitacoraPort bitacoraPort;

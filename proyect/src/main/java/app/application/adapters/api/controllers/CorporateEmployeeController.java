@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import app.application.adapters.api.request.LoanRequest;
 import app.application.adapters.api.request.TransferRequest;
 import app.application.adapters.api.response.BankAccountResponse;
 import app.application.adapters.api.response.CustomerResponse;
 import app.application.adapters.api.response.LoanResponse;
 import app.application.adapters.api.response.PersonCustomerResponse;
 import app.application.adapters.api.response.TransferResponse;
-import app.application.usecases.PersonCustomerUserUseCase;
+import app.application.usecases.CorporateEmployeeUseCase;
 import app.domain.models.BankAccount;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
@@ -33,15 +32,15 @@ import app.domain.ports.UserPort;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/person_customer_user")
-public class PersonCustomerController {
+@RequestMapping("/corporate_employe")
+public class CorporateEmployeeController {
 
     @Autowired
-    private final PersonCustomerUserUseCase personCustomerUserUseCase;
+    private final CorporateEmployeeUseCase corporateEmployeeUseCase;
     private final UserPort userPort;
 
-    public PersonCustomerController(PersonCustomerUserUseCase personCustomerUserUseCase, UserPort userPort) {
-        this.personCustomerUserUseCase = personCustomerUserUseCase;
+    public CorporateEmployeeController(CorporateEmployeeUseCase corporateEmployeeUseCase, UserPort userPort) {
+        this.corporateEmployeeUseCase = corporateEmployeeUseCase;
         this.userPort = userPort;
     }
 
@@ -50,70 +49,61 @@ public class PersonCustomerController {
         return userPort.findByDocument(document);
     }
 
-    // ── Loans ─────────────────────────────────────────────────────────────────
-
-    @PostMapping("/loans")
-    public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody LoanRequest request) {
-        User user = getAuthenticatedUser();
-        Loan loan = toLoan(request);
-        personCustomerUserUseCase.createLoan(user, loan);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toLoanResponse(loan));
-    }
-
-    @GetMapping("/loans")
-    public ResponseEntity<List<LoanResponse>> findMyLoans() {
-        User user = getAuthenticatedUser();
-        List<LoanResponse> loans = personCustomerUserUseCase.findMyLoans(user)
-                .stream().map(PersonCustomerController::toLoanResponse).toList();
-        return ResponseEntity.ok(loans);
-    }
-
     // ── Transfers ─────────────────────────────────────────────────────────────
 
     @PostMapping("/transfers")
     public ResponseEntity<TransferResponse> createTransfer(@Valid @RequestBody TransferRequest request) {
         User user = getAuthenticatedUser();
         Transfer transfer = toTransfer(request);
-        personCustomerUserUseCase.createTransfer(user, transfer);
+        corporateEmployeeUseCase.createTransfer(user, transfer);
         return ResponseEntity.status(HttpStatus.CREATED).body(toTransferResponse(transfer));
     }
 
+    @GetMapping("/transfers/{id}")
+    public ResponseEntity<TransferResponse> findTransferById(@PathVariable UUID id) {
+        Transfer transfer = corporateEmployeeUseCase.findTransferById(id);
+        return ResponseEntity.ok(toTransferResponse(transfer));
+    }
 
     @GetMapping("/transfers/account/{accountNumber}")
     public ResponseEntity<List<TransferResponse>> findTransfersByAccount(@PathVariable int accountNumber) {
         User user = getAuthenticatedUser();
-        List<TransferResponse> transfers = personCustomerUserUseCase.findTransfersByAccount(accountNumber, user)
-                .stream().map(PersonCustomerController::toTransferResponse).toList();
+        List<TransferResponse> transfers = corporateEmployeeUseCase.findTransfersByAccount(accountNumber, user)
+                .stream().map(CorporateEmployeeController::toTransferResponse).toList();
         return ResponseEntity.ok(transfers);
+    }
+
+    // ── Loans ─────────────────────────────────────────────────────────────────
+
+    @GetMapping("/loans/{id}")
+    public ResponseEntity<LoanResponse> findLoanById(@PathVariable UUID id) {
+        Loan loan = corporateEmployeeUseCase.findLoanById(id);
+        return ResponseEntity.ok(toLoanResponse(loan));
+    }
+
+    @GetMapping("/loans/customer/{document}")
+    public ResponseEntity<List<LoanResponse>> findLoansByCustomer(@PathVariable String document) {
+        List<LoanResponse> loans = corporateEmployeeUseCase.findLoansByCustomer(document)
+                .stream().map(CorporateEmployeeController::toLoanResponse).toList();
+        return ResponseEntity.ok(loans);
     }
 
     // ── Bank Accounts ─────────────────────────────────────────────────────────
 
-    @GetMapping("/bank_accounts")
-    public ResponseEntity<List<BankAccountResponse>> findMyAccounts() {
-        User user = getAuthenticatedUser();
-        List<BankAccountResponse> accounts = personCustomerUserUseCase
-                .findAccountByCustomer(user.getDocument())
-                .stream().map(PersonCustomerController::toBankAccountResponse).toList();
+    @GetMapping("/bank_accounts/{id}")
+    public ResponseEntity<BankAccountResponse> findBankAccountById(@PathVariable UUID id) {
+        BankAccount account = corporateEmployeeUseCase.findBankAccountById(id);
+        return ResponseEntity.ok(toBankAccountResponse(account));
+    }
+
+    @GetMapping("/bank_accounts/customer/{document}")
+    public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
+        List<BankAccountResponse> accounts = corporateEmployeeUseCase.findBankAccountsByCustomer(document)
+                .stream().map(CorporateEmployeeController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }
 
     // ── Mappers ───────────────────────────────────────────────────────────────
-
-    private static Loan toLoan(LoanRequest req) {
-        Loan loan = new Loan();
-        loan.setLoanType(req.getLoanType());
-        loan.setRequestedAmount(req.getRequestedAmount());
-        loan.setInterestRate(req.getInterestRate());
-        loan.setTermInMonths(req.getTermInMonths());
-        loan.setDisburseAccount(req.getDisburseAccount());
-        if (req.getCustomerOwner() != null) {
-            PersonCustomer customer = new PersonCustomer();
-            customer.setDocument(req.getCustomerOwner().getDocument());
-            loan.setCustomerOwner(customer);
-        }
-        return loan;
-    }
 
     private static Transfer toTransfer(TransferRequest req) {
         Transfer transfer = new Transfer();

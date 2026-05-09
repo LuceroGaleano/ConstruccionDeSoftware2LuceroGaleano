@@ -21,56 +21,89 @@ public class CreateUser {
     private final CreatePersonCustomer createPersonCustomer;
 
     @Autowired
-    public CreateUser(UserPort userPort, CustomerPort customerPort, CreateCorporateCustomer createCorporateCustomer, CreatePersonCustomer createPersonCustomer){
+    public CreateUser(UserPort userPort, CustomerPort customerPort,
+            CreateCorporateCustomer createCorporateCustomer,
+            CreatePersonCustomer createPersonCustomer) {
         this.userPort = userPort;
         this.customerPort = customerPort;
         this.createCorporateCustomer = createCorporateCustomer;
         this.createPersonCustomer = createPersonCustomer;
     }
 
-    public void createUser(User user) throws BussinesException{
+    public void createUser(User user) throws BussinesException {
+
         // Validar credenciales únicas del Usuario
-        if(userPort.existsByDocument(user.getDocument())){
+        if (userPort.existsByDocument(user.getDocument())) {
             throw new BussinesException("Identificacion ya registrada");
         }
 
-        if(userPort.existsByUserName(user.getUserName())){
+        if (userPort.existsByUserName(user.getUserName())) {
             throw new BussinesException("Nombre de usuario ya existente");
         }
 
-        if(userPort.existsByEmail(user.getEmail())){
+        if (userPort.existsByEmail(user.getEmail())) {
             throw new BussinesException("Ya existe un usuario con ese email");
         }
 
         // Si el usuario es cliente, validar o crear el Customer
-        if(user.getSystemRole() == RolUser.CorporateCustomerUser || user.getSystemRole() == RolUser.PersonCustomerUser){
-            Customer customer = customerPort.findByDocument(user.getDocument());
-            
-            if(customer != null){
-                // Si Customer existe validar que los datos coincidan
-                if(!hasMatchingData(user, customer)){
-                    throw new BussinesException("Ya existe un cliente con esta identificación pero los datos no coinciden");
-                }
+        if (user.getSystemRole() == RolUser.CorporateCustomerUser
+                || user.getSystemRole() == RolUser.PersonCustomerUser) {
+
+            if (user.getCustomer() == null || user.getCustomer().getDocument() == null) {
+                throw new BussinesException("Debe proporcionar el documento del cliente");
+            }
+
+            // Buscar por documento del customer
+            Customer customer = customerPort.findByDocument(user.getCustomer().getDocument());
+
+            if (customer != null) {
+                // Cliente ya existe, vincularlo
+                user.setCustomer(customer);
+            } else {
+                // Cliente no existe, crearlo con los datos enviados
+                if (user.getSystemRole() == RolUser.CorporateCustomerUser) {
+                    if (!(user.getCustomer() instanceof CorporateCustomer cc)) {
+                        throw new BussinesException("El cliente no existe, envíe todos sus datos para crearlo");
+                    }
+                    if (cc.getFullName() == null || cc.getEmail() == null) {
+                        throw new BussinesException("El cliente no existe, envíe fullName y email para crearlo");
+                    }
+                    if (cc.getLegalRepresentative() == null || cc.getLegalRepresentative().getDocument() == null) {
+                        throw new BussinesException("Debe proporcionar el representante legal del cliente corporativo");
+                    }
+                    createCorporateCustomer.createCorporateCustomer(cc);
+                    user.setCustomer(cc);
+                } else if(user.getSystemRole() == RolUser.PersonCustomerUser) {
+                    if (!(user.getCustomer() instanceof PersonCustomer pc)) {
+                        throw new BussinesException("El cliente no existe, envíe todos sus datos para crearlo");
+                    }
+                    if (pc.getFullName() == null || pc.getEmail() == null || pc.getBirthDate() == null) {
+                        throw new BussinesException("El cliente no existe, envíe fullName, email y birthDate para crearlo \n customer:NIT");
+                    }
+                    createPersonCustomer.createPersonCustomer(pc);
+                    user.setCustomer(pc);
+                } 
+            }
+        }
+
+        //Si el usuairo es de tipo CorporateEmploye o CorporateSupervisro
+        //Se usara el customer para enlazar el id de la empresa para la que trabaja
+         //Para poder validar que solo pueda trabajar con los productos de empresa
+        if(user.getSystemRole() == RolUser.CorporateEmployee || (user.getSystemRole() == RolUser.CorporateSupervisor)){
+            if (user.getCustomer() == null || user.getCustomer().getDocument() == null) {
+                throw new BussinesException("Para este tipo de rol, debe proporcionar en el NIT de la empresa para la que trabaja");
+            }
+            Customer customer = customerPort.findByDocument(user.getCustomer().getDocument());
+            if (customer != null) {
+                // Cliente ya existe, vincularlo
+                user.setCustomer(customer);
             } else{
-                // Customer no existe hay crearlo
-                if(user.getSystemRole() == RolUser.CorporateCustomerUser){
-                    createCorporateCustomer.createCorporateCustomer((CorporateCustomer)user.getCustomer());
-                } else{
-                    createPersonCustomer.createPersonCustomer((PersonCustomer)user.getCustomer());
-                }
+                throw new BussinesException("Empresa no encontrada");
             }
         }
 
         // Guardar el usuario con estado activo
         user.setUserStatus(UserStatus.Active);
         userPort.save(user);
-    }
-
-    private boolean hasMatchingData(User user, Customer customer){
-        return customer.getFullName().equals(user.getFullName()) && 
-               customer.getDocument().equals(user.getDocument()) &&
-               customer.getEmail().equals(user.getEmail()) &&
-               customer.getPhone().equals(user.getPhone()) &&
-               customer.getAddress().equals(user.getAddress());
     }
 }

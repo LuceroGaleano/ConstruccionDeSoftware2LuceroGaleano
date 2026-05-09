@@ -16,35 +16,45 @@ public class CreateCorporateCustomer {
     private final CreatePersonCustomer createPersonCustomer;
 
     @Autowired
-    public CreateCorporateCustomer(CustomerPort customerPort, 
-        CreatePersonCustomer createPersonCustomer){
+    public CreateCorporateCustomer(CustomerPort customerPort,
+            CreatePersonCustomer createPersonCustomer) {
         this.customerPort = customerPort;
         this.createPersonCustomer = createPersonCustomer;
     }
 
-    public void createCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
-        //Validar que el NIT no exista en la base de datos
-        if(customerPort.existsByDocument(corporateCustomer.getDocument())){
-            throw new  BussinesException("NIT ya registrado en el sistema");
+    public void createCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException {
+
+        // Validar que el NIT no exista
+        if (customerPort.existsByDocument(corporateCustomer.getDocument())) {
+            throw new BussinesException("NIT ya registrado en el sistema");
         }
 
-        
-        //Validar que la persona representante exista en la base de datos
-        if(!customerPort.existsByDocument(corporateCustomer.getLegalRepresentative().getDocument())){
+        // Validar que venga el representante legal
+        if (corporateCustomer.getLegalRepresentative() == null ||
+                corporateCustomer.getLegalRepresentative().getDocument() == null) {
+            throw new BussinesException("Debe proporcionar el representante legal");
+        }
+
+        // Validar que la persona representante exista en la base de datos
+        if (!customerPort.existsByDocument(corporateCustomer.getLegalRepresentative().getDocument())) {
             PersonCustomer legal = (PersonCustomer) corporateCustomer.getLegalRepresentative();
-            if(legal.getFullName() == null || legal.getEmail() == null || legal.getBirthDate() == null){
+            if (legal.getFullName() == null || legal.getEmail() == null || legal.getBirthDate() == null) {
                 throw new BussinesException("El representante legal no existe, envíe todos sus datos para crearlo");
             }
             createPersonCustomer.createPersonCustomer(legal);
         }
 
         PersonCustomer legal = (PersonCustomer) customerPort.findByDocument(corporateCustomer.getLegalRepresentative().getDocument());
-        //Validar que la persona representante este activo
-        if(legal.getCustomerStatus() != CustomerStatus.Active){
+        if(legal == null){
+            throw new BussinesException("El representante legal no existe en el sistema");
+        }
+
+        // Validar que el representante legal esté activo
+        if (legal.getCustomerStatus() != CustomerStatus.Active) {
             throw new BussinesException("El representante legal no esta activo en el sistema");
         }
-        
-        corporateCustomer.setLegalRepresentative((PersonCustomer) customerPort.findByDocument(corporateCustomer.getLegalRepresentative().getDocument()));
+
+        corporateCustomer.setLegalRepresentative(legal);
         corporateCustomer.setRolCustomer(RolCustomer.CorporateCustomer);
         corporateCustomer.setCustomerStatus(CustomerStatus.Active);
         customerPort.save(corporateCustomer);

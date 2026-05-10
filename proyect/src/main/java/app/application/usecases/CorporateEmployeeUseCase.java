@@ -39,27 +39,15 @@ public class CorporateEmployeeUseCase {
         createTransfer.createTransfer(transfer, user);
     }
 
-    public Transfer findTransferById(UUID id) throws BussinesException {
-        return findTransfer.findById(id);
-    }
-
     public List<Transfer> findTransfersByAccount(int accountNumber, User user) throws BussinesException {
         return findTransfer.findByAccount(accountNumber, user);
     }
 
-    public Loan findLoanById(UUID id) throws BussinesException {
-        return findLoan.findById(id);
+    public List<Loan> findLoansByCustomer(String document, User user) throws BussinesException {
+        return findLoan.findByCustomer(document, user);
     }
 
-    public List<Loan> findLoansByCustomer(String document) throws BussinesException {
-        return findLoan.findByCustomer(document);
-    }
-
-    public BankAccount findBankAccountById(UUID id) throws BussinesException {
-        return findBankAccount.findById(id);
-    }
-
-    public List<BankAccount> findBankAccountsByCustomer(String document) throws BussinesException {
-        return findBankAccount.findByCustomerOwner(document);
+    public List<BankAccount> findBankAccountsByCustomer(String document, User user) throws BussinesException {
+        return findBankAccount.findByCustomerOwner(document, user);
     }
 }

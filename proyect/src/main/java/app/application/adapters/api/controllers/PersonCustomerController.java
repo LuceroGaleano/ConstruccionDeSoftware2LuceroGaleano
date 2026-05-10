@@ -1,7 +1,6 @@
 package app.application.adapters.api.controllers;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -93,7 +92,7 @@ public class PersonCustomerController {
     public ResponseEntity<List<BankAccountResponse>> findMyAccounts() {
         User user = getAuthenticatedUser();
         List<BankAccountResponse> accounts = personCustomerUserUseCase
-                .findAccountByCustomer(user.getDocument())
+                .findAccountByCustomer(user.getDocument(), user)
                 .stream().map(PersonCustomerController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }

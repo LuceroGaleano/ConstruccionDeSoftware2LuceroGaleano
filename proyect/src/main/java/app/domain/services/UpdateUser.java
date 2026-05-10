@@ -57,13 +57,4 @@ public class UpdateUser {
         }
         userPort.update(user);
     }
-
-    private boolean hasMatchingData(User user) {
-        Customer customer = customerPort.findByDocument(user.getDocument());
-        return (customer.getFullName().equals(user.getFullName()) &&
-                customer.getDocument().equals(user.getDocument()) &&
-                customer.getEmail().equals(user.getEmail()) &&
-                customer.getPhone().equals(user.getPhone()) &&
-                customer.getAddress().equals(user.getAddress()));
-    }
 }

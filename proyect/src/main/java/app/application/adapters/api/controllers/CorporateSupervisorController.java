@@ -68,15 +68,10 @@ public class CorporateSupervisorController {
 
     // ── Loans ─────────────────────────────────────────────────────────────────
 
-    @GetMapping("/loans/{id}")
-    public ResponseEntity<LoanResponse> findLoanById(@PathVariable UUID id) {
-        Loan loan = corporateSupervisorUseCase.findLoanById(id);
-        return ResponseEntity.ok(toLoanResponse(loan));
-    }
-
     @GetMapping("/loans/customer/{document}")
     public ResponseEntity<List<LoanResponse>> findLoansByCustomer(@PathVariable String document) {
-        List<LoanResponse> loans = corporateSupervisorUseCase.findLoansByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<LoanResponse> loans = corporateSupervisorUseCase.findLoansByCustomer(document, user)
                 .stream().map(CorporateSupervisorController::toLoanResponse).toList();
         return ResponseEntity.ok(loans);
     }
@@ -87,7 +82,8 @@ public class CorporateSupervisorController {
 
     @GetMapping("/bank_accounts/customer/{document}")
     public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
-        List<BankAccountResponse> accounts = corporateSupervisorUseCase.findBankAccountsByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<BankAccountResponse> accounts = corporateSupervisorUseCase.findBankAccountsByCustomer(document, user)
                 .stream().map(CorporateSupervisorController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }

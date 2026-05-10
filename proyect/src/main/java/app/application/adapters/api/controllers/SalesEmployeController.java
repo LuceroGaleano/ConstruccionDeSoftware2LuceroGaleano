@@ -93,7 +93,8 @@ public class SalesEmployeController {
 
     @GetMapping("/loans/customer/{document}")
     public ResponseEntity<List<LoanResponse>> findLoansByCustomer(@PathVariable String document) {
-        List<LoanResponse> loans = salesEmployeUseCase.findLoansByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<LoanResponse> loans = salesEmployeUseCase.findLoansByCustomer(document, user)
                 .stream().map(SalesEmployeController::toLoanResponse).toList();
         return ResponseEntity.ok(loans);
     }
@@ -109,7 +110,8 @@ public class SalesEmployeController {
 
     @GetMapping("/bank_accounts/customer/{document}")
     public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
-        List<BankAccountResponse> accounts = salesEmployeUseCase.findBankAccountsByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<BankAccountResponse> accounts = salesEmployeUseCase.findBankAccountsByCustomer(document, user)
                 .stream().map(SalesEmployeController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }

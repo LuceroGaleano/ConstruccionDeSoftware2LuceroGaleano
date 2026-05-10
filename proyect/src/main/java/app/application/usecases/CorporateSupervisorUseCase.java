@@ -42,17 +42,13 @@ public class CorporateSupervisorUseCase {
         return findTransfer.findByAccount(accountNumber, user);
     }
 
-    public Loan findLoanById(UUID id) throws BussinesException {
-        return findLoan.findById(id);
+
+    public List<Loan> findLoansByCustomer(String document, User user) throws BussinesException {
+        return findLoan.findByCustomer(document, user);
     }
 
-    public List<Loan> findLoansByCustomer(String document) throws BussinesException {
-        return findLoan.findByCustomer(document);
-    }
-
-
-    public List<BankAccount> findBankAccountsByCustomer(String document) throws BussinesException {
-        return findBankAccount.findByCustomerOwner(document);
+    public List<BankAccount> findBankAccountsByCustomer(String document, User user) throws BussinesException {
+        return findBankAccount.findByCustomerOwner(document, user);
     }
 
     public void approveTransfer(UUID id, User user) throws BussinesException {

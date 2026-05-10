@@ -59,11 +59,6 @@ public class CorporateEmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toTransferResponse(transfer));
     }
 
-    @GetMapping("/transfers/{id}")
-    public ResponseEntity<TransferResponse> findTransferById(@PathVariable UUID id) {
-        Transfer transfer = corporateEmployeeUseCase.findTransferById(id);
-        return ResponseEntity.ok(toTransferResponse(transfer));
-    }
 
     @GetMapping("/transfers/account/{accountNumber}")
     public ResponseEntity<List<TransferResponse>> findTransfersByAccount(@PathVariable int accountNumber) {
@@ -75,30 +70,22 @@ public class CorporateEmployeeController {
 
     // ── Loans ─────────────────────────────────────────────────────────────────
 
-    @GetMapping("/loans/{id}")
-    public ResponseEntity<LoanResponse> findLoanById(@PathVariable UUID id) {
-        Loan loan = corporateEmployeeUseCase.findLoanById(id);
-        return ResponseEntity.ok(toLoanResponse(loan));
-    }
 
     @GetMapping("/loans/customer/{document}")
     public ResponseEntity<List<LoanResponse>> findLoansByCustomer(@PathVariable String document) {
-        List<LoanResponse> loans = corporateEmployeeUseCase.findLoansByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<LoanResponse> loans = corporateEmployeeUseCase.findLoansByCustomer(document, user)
                 .stream().map(CorporateEmployeeController::toLoanResponse).toList();
         return ResponseEntity.ok(loans);
     }
 
     // ── Bank Accounts ─────────────────────────────────────────────────────────
 
-    @GetMapping("/bank_accounts/{id}")
-    public ResponseEntity<BankAccountResponse> findBankAccountById(@PathVariable UUID id) {
-        BankAccount account = corporateEmployeeUseCase.findBankAccountById(id);
-        return ResponseEntity.ok(toBankAccountResponse(account));
-    }
 
     @GetMapping("/bank_accounts/customer/{document}")
     public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
-        List<BankAccountResponse> accounts = corporateEmployeeUseCase.findBankAccountsByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<BankAccountResponse> accounts = corporateEmployeeUseCase.findBankAccountsByCustomer(document, user)
                 .stream().map(CorporateEmployeeController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }

@@ -25,7 +25,6 @@ import app.application.adapters.api.request.OnSearch;
 import app.application.adapters.api.request.PersonCustomerRequest;
 import app.application.adapters.api.request.TransferRequest;
 import app.application.adapters.api.request.UserRequest;
-import app.application.adapters.api.request.UserUpdateRequest;
 import app.application.adapters.api.response.BankAccountResponse;
 import app.application.adapters.api.response.CorporateCustomerResponse;
 import app.application.adapters.api.response.CustomerResponse;
@@ -108,7 +107,8 @@ public class WindowEmployeController {
 
     @GetMapping("/bank_accounts/customer/{document}")
     public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
-        List<BankAccountResponse> accounts = windowEmployeUseCase.findBankAccountsByCustomer(document)
+        User user = getAuthenticatedUser();
+        List<BankAccountResponse> accounts = windowEmployeUseCase.findBankAccountsByCustomer(document, user)
                 .stream().map(WindowEmployeController::toBankAccountResponse).toList();
         return ResponseEntity.ok(accounts);
     }
@@ -219,30 +219,6 @@ public class WindowEmployeController {
         User user = new User();
         user.setFullName(req.getFullName());
         user.setDocument(req.getDocument());
-        user.setEmail(req.getEmail());
-        user.setPhone(req.getPhone());
-        user.setAddress(req.getAddress());
-        user.setRelatedId(req.getRelatedId());
-        user.setBirthDate(req.getBirthDate());
-        user.setSystemRole(req.getSystemRole());
-        user.setUserStatus(req.getUserStatus());
-        user.setUserName(req.getUserName());
-        user.setPassword(req.getPassword());
-        user.setCompany(req.getCompany());
-        if (req.getCustomer() != null) {
-            if (req.getSystemRole() == RolUser.CorporateCustomerUser) {
-                user.setCustomer(toCorporateCustomer(req.getCustomer()));
-            } else {
-                user.setCustomer(toPersonCustomer(req.getCustomer()));
-            }
-        }
-        return user;
-    }
-
-
-    private static User toUserUpdate(UserUpdateRequest req) {
-        User user = new User();
-        user.setFullName(req.getFullName());
         user.setEmail(req.getEmail());
         user.setPhone(req.getPhone());
         user.setAddress(req.getAddress());

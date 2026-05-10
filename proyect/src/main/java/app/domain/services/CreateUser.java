@@ -89,17 +89,18 @@ public class CreateUser {
         //Si el usuairo es de tipo CorporateEmploye o CorporateSupervisro
         //Se usara el customer para enlazar el id de la empresa para la que trabaja
          //Para poder validar que solo pueda trabajar con los productos de empresa
-        if(user.getSystemRole() == RolUser.CorporateEmployee || (user.getSystemRole() == RolUser.CorporateSupervisor)){
+        if (user.getSystemRole() == RolUser.CorporateEmployee || user.getSystemRole() == RolUser.CorporateSupervisor) {
             if (user.getCustomer() == null || user.getCustomer().getDocument() == null) {
-                throw new BussinesException("Para este tipo de rol, debe proporcionar en el NIT de la empresa para la que trabaja");
+                throw new BussinesException("Para este tipo de rol, debe proporcionar el NIT de la empresa para la que trabaja");
             }
             Customer customer = customerPort.findByDocument(user.getCustomer().getDocument());
-            if (customer != null) {
-                // Cliente ya existe, vincularlo
-                user.setCustomer(customer);
-            } else{
+            if (customer == null) {
                 throw new BussinesException("Empresa no encontrada");
             }
+            if (!(customer instanceof CorporateCustomer)) {
+                throw new BussinesException("El documento proporcionado no corresponde a una empresa");
+            }
+            user.setCustomer(customer);
         }
 
         // Guardar el usuario con estado activo

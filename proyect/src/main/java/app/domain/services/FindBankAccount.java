@@ -39,6 +39,8 @@ public class FindBankAccount {
         if(bankAccount == null){
             throw new NotFoundException("Cuenta bancaria no encontrada");
         }
+
+        //Si es Customer, validar que este viendo sus productos
         if(!bankAccount.getCustomerOwner().getDocument().equals(user.getDocument()) &&
         (user.getSystemRole().equals(RolUser.PersonCustomerUser) ||
         user.getSystemRole().equals(RolUser.CorporateCustomerUser))){
@@ -47,11 +49,20 @@ public class FindBankAccount {
         return bankAccount;
     }
 
-    public List<BankAccount> findByCustomerOwner(String customerDocument) throws NotFoundException{
+    public List<BankAccount> findByCustomerOwner(String customerDocument, User user) throws NotFoundException, BussinesException {
         Customer customer = customerPort.findByDocument(customerDocument);
-        if(customer == null){
+        if (customer == null) {
             throw new NotFoundException("Cliente no encontrado");
         }
+
+        // Si es CorporateEmployee o CorporateSupervisor validar que sea su empresa
+        if (user.getSystemRole().equals(RolUser.CorporateEmployee) ||
+                user.getSystemRole().equals(RolUser.CorporateSupervisor)) {
+            if (!customer.getDocument().equals(user.getCustomer().getDocument())) {
+                throw new BussinesException("No puedes ver estas cuentas, la empresa no es la titular");
+            }
+        }
+
         return bankAccountPort.findByCustomerOwner(customer);
     }
-}
+    }

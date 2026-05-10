@@ -25,36 +25,37 @@ public class ApproveTransfer {
     private final BitacoraPort bitacoraPort;
 
     @Autowired
-    public ApproveTransfer(TransferPort transferPort, ExecuteTransfer executeTransfer, UserPort userPort, BitacoraPort bitacoraPort){
+    public ApproveTransfer(TransferPort transferPort, ExecuteTransfer executeTransfer, UserPort userPort, BitacoraPort bitacoraPort) {
         this.transferPort = transferPort;
         this.executeTransfer = executeTransfer;
         this.userPort = userPort;
         this.bitacoraPort = bitacoraPort;
     }
 
-    public void approveTransfer(UUID id, User user) throws  BussinesException{
+    public void approveTransfer(UUID id, User user) throws BussinesException {
         Transfer transfer = transferPort.findById(id);
-        
-        if(transfer == null){
+
+        if (transfer == null) {
             throw new BussinesException("Transferencia no encontrada");
         }
 
-        if(!transfer.getTransferStatus().equals(TransferStatus.Pending)){
+        if (!transfer.getTransferStatus().equals(TransferStatus.Pending)) {
             throw new BussinesException("Estado no válido");
         }
 
-        //Validamos que el que aprueba la transferencia exista
-        User approver = userPort.findByDocument(transfer.getIdApprover());
+        // El aprobador es el usuario autenticado
+        User approver = user;
 
-        if(approver == null){
-            throw new BussinesException("Usuario que aprueba no encontrado");
+        // Validamos que el creador exista
+        User creator = userPort.findByDocument(transfer.getIdCreator());
+        if (creator == null) {
+            throw new BussinesException("Usuario creador no encontrado");
         }
 
-        //Validamos que el que aprueba la transferencia y el creador sean de la misma empresa
-        User creator = userPort.findByDocument(transfer.getIdCreator());
-        if(!approver.getCompany().equals(creator.getCompany())){
-            throw new BussinesException("El usuario aprobador y el creador de la transferencia no pertenecen a la misma empresa");
-     }
+        // Validamos que el aprobador y el creador sean de la misma empresa
+        if (!approver.getCustomer().getDocument().equals(creator.getCustomer().getDocument())) {
+            throw new BussinesException("El usuario aprobador y el creador no pertenecen a la misma empresa");
+        }
 
         Map<String, Object> detailData = Map.of(
             "balanceBeforeOrigin", transfer.getOriginAccount().getCurrentBalance(),
@@ -63,11 +64,12 @@ public class ApproveTransfer {
 
         transfer.setTransferStatus(TransferStatus.Approved);
         transfer.setApprovalDate(new Date(System.currentTimeMillis()));
+        transfer.setIdApprover(approver.getDocument());
         executeTransfer.executeTransfer(transfer);
 
         transferPort.update(transfer);
 
-        //Bitacora
+        // Bitacora
         detailData = Map.of(
             "amountTransfer", transfer.getAmount(),
             "balanceAfterOrigin", transfer.getOriginAccount().getCurrentBalance(),

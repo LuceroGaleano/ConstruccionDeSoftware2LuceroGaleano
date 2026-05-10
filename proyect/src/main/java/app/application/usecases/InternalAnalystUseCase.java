@@ -56,8 +56,8 @@ public class InternalAnalystUseCase {
         return findLoan.findById(id);
     }
 
-    public List<Loan> findLoansByCustomer(String document) throws BussinesException {
-        return findLoan.findByCustomer(document);
+    public List<Loan> findLoansByCustomer(String document, User user) throws BussinesException {
+        return findLoan.findByCustomer(document, user);
     }
 
     public Transfer findTransferById(UUID id) throws BussinesException {
@@ -72,8 +72,8 @@ public class InternalAnalystUseCase {
         return findBankAccount.findById(id);
     }
 
-    public List<BankAccount> findBankAccountsByCustomer(String document) throws BussinesException {
-        return findBankAccount.findByCustomerOwner(document);
+    public List<BankAccount> findBankAccountsByCustomer(String document, User user) throws BussinesException {
+        return findBankAccount.findByCustomerOwner(document, user);
     }
 
     public Bitacora findBitacoraById(String id) throws BussinesException {

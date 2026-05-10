@@ -39,11 +39,23 @@ public class FindTransfer {
         if (bankAccount == null) {
             throw new NotFoundException("Cuenta no encontrada");
         }
-        if(!bankAccount.getCustomerOwner().getDocument().equals(user.getDocument()) &&
-        (user.getSystemRole().equals(RolUser.PersonCustomerUser) ||
-        user.getSystemRole().equals(RolUser.CorporateCustomerUser))){
-            throw new BussinesException("No puedes ver estas transferencias, no eres dueño del la cuenta bancaria");
+
+        // Si es PersonCustomerUser validar con user.getDocument()
+        if (user.getSystemRole().equals(RolUser.PersonCustomerUser)) {
+            if (!bankAccount.getCustomerOwner().getDocument().equals(user.getDocument())) {
+                throw new BussinesException("No puedes ver estas transferencias, no eres dueño de la cuenta bancaria");
+            }
         }
+
+        // Si es CorporateCustomerUser, CorporateEmployee o CorporateSupervisor validar con user.getCustomer().getDocument()
+        if (user.getSystemRole().equals(RolUser.CorporateCustomerUser) ||
+                user.getSystemRole().equals(RolUser.CorporateEmployee) ||
+                user.getSystemRole().equals(RolUser.CorporateSupervisor)) {
+            if (!bankAccount.getCustomerOwner().getDocument().equals(user.getCustomer().getDocument())) {
+                throw new BussinesException("No puedes ver estas transferencias, la empresa no es dueña de la cuenta bancaria");
+            }
+        }
+
         return transferPort.findByOriginAccount(bankAccount);
     }
 }

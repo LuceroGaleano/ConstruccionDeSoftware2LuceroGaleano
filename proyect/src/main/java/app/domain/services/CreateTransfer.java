@@ -109,10 +109,12 @@ public class CreateTransfer {
         if (transfer.getAmount().compareTo(maxAmount) > 0 && origenAccountFull.getAccountType() == AccountType.Current) {
             transfer.setTransferStatus(TransferStatus.Pending);
             transferPort.update(transfer);
-        } else {
+        } else if(transfer.getAmount().compareTo(maxAmount) < 0 && origenAccountFull.getAccountType() == AccountType.Current) {
             transfer.setTransferStatus(TransferStatus.Approved);
             transfer.setApprovalDate(new Date(System.currentTimeMillis()));
             executeTransfer.executeTransfer(transfer);
+        } else{
+            transfer.setTransferStatus(TransferStatus.Cancelled);
         }
 
 

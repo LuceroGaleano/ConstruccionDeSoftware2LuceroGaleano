@@ -101,8 +101,8 @@ public class WindowEmployeUseCase {
         return findBankAccount.findByAccountNumber(accountNumber, user);
     }
 
-    public List<BankAccount> findBankAccountsByCustomer(String document) throws NotFoundException {
-        return findBankAccount.findByCustomerOwner(document);
+    public List<BankAccount> findBankAccountsByCustomer(String document, User user) throws NotFoundException {
+        return findBankAccount.findByCustomerOwner(document, user);
     }
 
     public void createPersonCustomer(PersonCustomer personCustomer) throws BussinesException {

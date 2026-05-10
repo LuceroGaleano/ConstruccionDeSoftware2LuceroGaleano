@@ -92,6 +92,23 @@ public class TransferPersistenceAdapter implements TransferPort {
         );
         t.setIdCreator(e.getIdCreator());
         t.setIdApprover(e.getIdApprover());
+
+        if (e.getOriginAccount() != null) {
+            BankAccount origin = new BankAccount();
+            origin.setId(e.getOriginAccount().getId());
+            origin.setAccountNumber(e.getOriginAccount().getAccountNumber());
+            origin.setCurrentBalance(e.getOriginAccount().getCurrentBalance());
+            t.setOriginAccount(origin);
+        }
+
+        if (e.getDestinationAccount() != null) {
+            BankAccount destination = new BankAccount();
+            destination.setId(e.getDestinationAccount().getId());
+            destination.setAccountNumber(e.getDestinationAccount().getAccountNumber());
+            destination.setCurrentBalance(e.getDestinationAccount().getCurrentBalance());
+            t.setDestinationAccount(destination);
+        }
+
         return t;
     }
 

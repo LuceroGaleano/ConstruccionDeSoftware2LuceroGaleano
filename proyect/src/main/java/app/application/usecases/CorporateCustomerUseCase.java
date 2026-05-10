@@ -1,7 +1,6 @@
 package app.application.usecases;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -49,7 +48,7 @@ public class CorporateCustomerUseCase {
     }
 
 
-    public List<BankAccount> findBankAccountsByCustomer(String document) throws BussinesException {
-        return findBankAccount.findByCustomerOwner(document);
+    public List<BankAccount> findBankAccountsByCustomer(String document, User user) throws BussinesException {
+        return findBankAccount.findByCustomerOwner(document, user);
     }
 }

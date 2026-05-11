@@ -43,7 +43,6 @@ public class UserPersistenceAdapter implements UserPort {
             existingUser.setPhone(user.getPhone());
             existingUser.setAddress(user.getAddress());
             existingUser.setUserID(user.getUserID());
-            existingUser.setRelatedId(user.getRelatedId());
             existingUser.setSystemRole(user.getSystemRole() != null ? user.getSystemRole().toString() : null);
             existingUser.setUserStatus(user.getUserStatus() != null ? user.getUserStatus().toString() : null);
             existingUser.setUserName(user.getUserName());
@@ -101,7 +100,6 @@ public class UserPersistenceAdapter implements UserPort {
         e.setPhone(user.getPhone());
         e.setAddress(user.getAddress());
         e.setUserID(user.getUserID());
-        e.setRelatedId(user.getRelatedId());
         e.setSystemRole(user.getSystemRole() != null ? user.getSystemRole().toString() : null);
         e.setUserStatus(user.getUserStatus() != null ? user.getUserStatus().toString() : null);
         e.setUserName(user.getUserName());
@@ -123,7 +121,6 @@ public class UserPersistenceAdapter implements UserPort {
         user.setPhone(e.getPhone());
         user.setAddress(e.getAddress());
         user.setUserID(e.getUserID());
-        user.setRelatedId(e.getRelatedId());
         user.setSystemRole(RolUser.valueOf(e.getSystemRole()));
         user.setUserStatus(UserStatus.valueOf(e.getUserStatus()));
         user.setUserName(e.getUserName());

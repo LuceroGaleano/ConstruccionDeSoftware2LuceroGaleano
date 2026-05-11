@@ -15,8 +15,8 @@ import app.domain.ports.TransferPort;
 
 @Service
 public class ExecuteTransfer {
-    TransferPort transferPort;
-    BankAccountPort bankAccountPort;
+    private final TransferPort transferPort;
+    private final BankAccountPort bankAccountPort;
 
     @Autowired
     public ExecuteTransfer(TransferPort transferPort, BankAccountPort bankAccountPort){
@@ -26,6 +26,7 @@ public class ExecuteTransfer {
     
     public void executeTransfer(Transfer transfer) throws BussinesException {
 
+        //Validamos qeu la transferencia exista
         if (transfer == null) {
             throw new BussinesException("Transferencia no encontrada");
         }
@@ -38,11 +39,12 @@ public class ExecuteTransfer {
             transfer.getDestinationAccount().getAccountNumber()
         );
 
+        //Validamos que las cuentas existan
         if (origenAccount == null || destinationAccount == null) {
             throw new BussinesException("Cuenta no encontrada");
         }
 
-
+        //Validamos que ambas esten activas
         if (origenAccount.getAccountStatus() != AccountStatus.Active) {
             throw new BussinesException("La cuenta de origen no puede enviar transferencias");
         }
@@ -51,6 +53,7 @@ public class ExecuteTransfer {
             throw new BussinesException("La cuenta de destino no puede recibir transferencias");
         }
 
+        //Validamos que tenga el suficiente sueldo
         if (origenAccount.getCurrentBalance().compareTo(transfer.getAmount()) < 0) {
             throw new BussinesException("Fondos insuficientes");
         }

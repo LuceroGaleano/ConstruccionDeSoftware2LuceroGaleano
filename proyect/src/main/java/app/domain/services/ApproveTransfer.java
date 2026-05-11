@@ -35,16 +35,22 @@ public class ApproveTransfer {
     public void approveTransfer(UUID id, User user) throws BussinesException {
         Transfer transfer = transferPort.findById(id);
 
+
+        //Validamos que transferencia exista
         if (transfer == null) {
             throw new BussinesException("Transferencia no encontrada");
         }
 
+        //Validamos que el estaod de la transferencia este en pendiente
         if (!transfer.getTransferStatus().equals(TransferStatus.Pending)) {
             throw new BussinesException("Estado no válido");
         }
 
         // El aprobador es el usuario autenticado
         User approver = user;
+        if(user == null){
+            throw new BussinesException("Usuario invalido");
+        }
 
         // Validamos que el creador exista
         User creator = userPort.findByDocument(transfer.getIdCreator());

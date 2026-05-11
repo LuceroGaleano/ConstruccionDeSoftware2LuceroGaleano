@@ -13,6 +13,7 @@ import app.domain.models.Bitacora;
 import app.domain.models.Transfer;
 import app.domain.models.User;
 import app.domain.models.enums.AccountType;
+import app.domain.models.enums.CurrencyType;
 import app.domain.models.enums.OperationBitacora;
 import app.domain.models.enums.RolUser;
 import app.domain.models.enums.TransferStatus;
@@ -41,7 +42,11 @@ public class CreateTransfer {
     public void createTransfer(Transfer transfer, User user) throws BussinesException {
         BankAccount origenAccount = transfer.getOriginAccount();
         BankAccount destinationAccount = transfer.getDestinationAccount();
-        BigDecimal maxAmount = new BigDecimal(500000);
+
+        // Validar que el usuario exista
+        if (user == null) {
+            throw new BussinesException("Usuario no encontrado");
+        }
 
         // Validamos que el id sea único
         if (transfer.getId() != null && transferPort.existsById(transfer.getId())) {
@@ -68,6 +73,7 @@ public class CreateTransfer {
             throw new BussinesException("No se ha encontrado la cuenta de destino");
         }
 
+        //Validamos que quien este creando la transferencia sea dueño de la cuenta origen
         if(!origenAccountFull.getCustomerOwner().getDocument().equals(user.getDocument()) &&
         (user.getSystemRole().equals(RolUser.PersonCustomerUser) ||
             user.getSystemRole().equals(RolUser.CorporateCustomerUser))) {
@@ -94,8 +100,20 @@ public class CreateTransfer {
             throw new BussinesException("No se ha encontrado el usuario creador de la transferencia");
         }
 
+        //Validamos que ambas cuantas tengan el mismo tipo de moneda
+        if(!origenAccountFull.getCurrencyType().equals(destinationAccountFull.getCurrencyType())){
+            throw new BussinesException("No es posible crear transferencia, las cuentas tienen diferente tipo de moneda");
+        }
+
+        //Validamos que el monto no este por debajo del minimo eprmitido
+        if(transfer.getAmount().compareTo(getMinAmount(origenAccountFull.getCurrencyType())) < 0){
+            throw new BussinesException("La transferencia esta por debajo del minimo permitido");
+        }
+
+
         // Guardamos 
         transfer.setCreationDate(new Date(System.currentTimeMillis()));
+        transfer.setIdCreator(user.getDocument());
         transferPort.save(transfer);
 
         //Crear detalles para bitacora
@@ -106,12 +124,13 @@ public class CreateTransfer {
 
         //Guardada la transferencia cambiamos el monto
         // Si el monto supera el límite y la cuenta es de tipo corriente, necesitará aprobación
-        if (transfer.getAmount().compareTo(maxAmount) > 0 && origenAccountFull.getAccountType() == AccountType.Current) {
+        if (transfer.getAmount().compareTo(getMaxAmount(origenAccountFull.getCurrencyType())) > 0 && origenAccountFull.getAccountType() == AccountType.Current) {
             transfer.setTransferStatus(TransferStatus.Pending);
             transferPort.update(transfer);
-        } else if(transfer.getAmount().compareTo(maxAmount) < 0 && origenAccountFull.getAccountType() == AccountType.Current) {
+        } else if(transfer.getAmount().compareTo(getMaxAmount(origenAccountFull.getCurrencyType())) < 0 && origenAccountFull.getAccountType() == AccountType.Current) {
             transfer.setTransferStatus(TransferStatus.Approved);
             transfer.setApprovalDate(new Date(System.currentTimeMillis()));
+            transfer.setIdApprover(user.getDocument());
             executeTransfer.executeTransfer(transfer);
         } else{
             transfer.setTransferStatus(TransferStatus.Cancelled);
@@ -135,5 +154,26 @@ public class CreateTransfer {
 
         bitacoraPort.save(bitacora);
 
+    }
+
+    //Obtener el maximo segun la moneda:
+    private BigDecimal getMaxAmount(CurrencyType currencyType){
+        return switch (currencyType) {
+            case COP -> BigDecimal.valueOf(10000000);
+            case EUR -> BigDecimal.valueOf(2300);
+            case USD -> BigDecimal.valueOf(2500);
+            case GBP -> BigDecimal.valueOf(2000);
+            default -> BigDecimal.ZERO;
+        };
+    }
+
+    private BigDecimal getMinAmount(CurrencyType currencyType){
+        return switch (currencyType) {
+            case COP -> BigDecimal.valueOf(50);
+            case EUR -> BigDecimal.valueOf(1);
+            case USD -> BigDecimal.valueOf(1);
+            case GBP -> BigDecimal.valueOf(1);
+            default -> BigDecimal.ZERO;
+        };
     }
 }

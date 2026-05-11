@@ -19,6 +19,11 @@ public class CreatePersonCustomer {
     }
 
     public void createPersonCustomer(PersonCustomer personCustomer) throws BussinesException{
+        // Validar que el cliente persona exista
+        if (personCustomer == null) {
+            throw new BussinesException("Cliente persona no encontrado");
+        }
+
         //Validar que la identificación no exista en la base de datos
         if(customerPort.existsByDocument(personCustomer.getDocument())){
             throw new BussinesException("Identificación ya registrada");

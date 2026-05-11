@@ -13,10 +13,12 @@ import app.application.adapters.persistence.sql.entities.PersonCustomerEntity;
 import app.application.adapters.persistence.sql.repositories.BankAccountRepository;
 import app.application.adapters.persistence.sql.repositories.CustomerRepository;
 import app.application.adapters.persistence.sql.repositories.LoanRepository;
+import app.domain.models.BankAccount;
 import app.domain.models.CorporateCustomer;
 import app.domain.models.Customer;
 import app.domain.models.Loan;
 import app.domain.models.PersonCustomer;
+import app.domain.models.enums.AccountStatus;
 import app.domain.models.enums.LoanStatus;
 import app.domain.models.enums.LoanType;
 import app.domain.models.enums.ProductCategory;
@@ -125,6 +127,16 @@ private LoanEntity toEntity(Loan loan) {
             customer.setDocument(e.getCustomerOwner().getDocument());
             customer.setFullName(e.getCustomerOwner().getFullName());
             loan.setCustomerOwner(customer);
+        }
+        // Mapear disburseAccount
+        if (e.getDisburseAccount() != null) {
+            BankAccount bankAccount = new BankAccount();
+            bankAccount.setId(e.getDisburseAccount().getId());
+            bankAccount.setAccountNumber(e.getDisburseAccount().getAccountNumber());
+            bankAccount.setCurrentBalance(e.getDisburseAccount().getCurrentBalance());
+            bankAccount.setAccountStatus(e.getDisburseAccount().getAccountStatus() != null ?
+                    AccountStatus.valueOf(e.getDisburseAccount().getAccountStatus()) : null);
+            loan.setDisburseAccount(bankAccount);
         }
         return loan;
     }

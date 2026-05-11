@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import app.domain.models.enums.TransferStatus;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +26,6 @@ public class TransferRequest {
     
     private TransferStatus transferStatus;
 
-    @NotBlank(message = "El documento de quien esta creando la transferencia no puede estar vacío")
     private String idCreator;
     
     private String idApprover;

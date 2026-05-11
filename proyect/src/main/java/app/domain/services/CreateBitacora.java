@@ -23,9 +23,9 @@ public class CreateBitacora {
     }
 
     public void createBitacora(Bitacora bitacora) throws  BussinesException{
-        //Validar que no se repita el id
-        if(bitacoraPort.existsById(bitacora.getId())){
-            throw new BussinesException("Ya existe una bitacora con esa id");
+        // Validar que la bitácora no sea exista
+        if (bitacora == null) {
+            throw new BussinesException("Bitácora inválida");
         }
 
         //Validamos que el usuario registrado exista
@@ -34,7 +34,11 @@ public class CreateBitacora {
             throw new BussinesException("Usuario no encontrado");
         }
 
-        //!Validamos que el producto exista
+        //Validamos que el producto exista
+        if (bitacora.getProductId() == null) {
+            throw new BussinesException("Producto inválido");
+        }
+
         bitacora.setOperationDate(new Date(System.currentTimeMillis()));
         bitacoraPort.save(bitacora);
     }

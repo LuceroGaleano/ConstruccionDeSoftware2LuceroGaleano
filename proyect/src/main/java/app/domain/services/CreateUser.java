@@ -31,6 +31,10 @@ public class CreateUser {
     }
 
     public void createUser(User user) throws BussinesException {
+        // Validar que el usuario exista
+        if (user == null) {
+            throw new BussinesException("Usuario no encontrado");
+        }
 
         // Validar credenciales únicas del Usuario
         if (userPort.existsByDocument(user.getDocument())) {

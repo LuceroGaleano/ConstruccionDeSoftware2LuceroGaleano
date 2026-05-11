@@ -1,5 +1,6 @@
 package app.application.usecases;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import app.domain.models.Loan;
 import app.domain.models.Transfer;
 import app.domain.models.User;
 import app.domain.services.ApproveLoan;
+import app.domain.services.DisburseLoan;
 import app.domain.services.FindBankAccount;
 import app.domain.services.FindBitacora;
 import app.domain.services.FindCustomer;
@@ -30,6 +32,7 @@ public class InternalAnalystUseCase {
     private final FindBitacora findBitacora;
     private final ApproveLoan approveLoan;
     private final RejectLoan rejectLoan;
+    private final DisburseLoan disburseLoan;
 
     public InternalAnalystUseCase(
             FindCustomer findCustomer,
@@ -38,7 +41,8 @@ public class InternalAnalystUseCase {
             FindBankAccount findBankAccount,
             FindBitacora findBitacora,
             ApproveLoan approveLoan,
-            RejectLoan rejectLoan) {
+            RejectLoan rejectLoan,
+            DisburseLoan disburseLoan) {
         this.findCustomer = findCustomer;
         this.findLoan = findLoan;
         this.findTransfer = findTransfer;
@@ -46,6 +50,7 @@ public class InternalAnalystUseCase {
         this.findBitacora = findBitacora;
         this.approveLoan = approveLoan;
         this.rejectLoan = rejectLoan;
+        this.disburseLoan = disburseLoan;
     }
 
     public Customer findCustomerByDocument(String document) throws BussinesException {
@@ -80,8 +85,12 @@ public class InternalAnalystUseCase {
         return findBitacora.findById(id);
     }
 
-    public void approveLoan(UUID id, User user) throws BussinesException {
-        approveLoan.approveLoan(id, user);
+    public void approveLoan(UUID id, User user, BigDecimal approvedAmount) throws BussinesException {
+        approveLoan.approveLoan(id, user, approvedAmount);
+    }
+
+    public void disburseLoan(UUID id, User user) throws BussinesException {
+        disburseLoan.disburseLoan(id, user);
     }
 
     public void rejectLoan(UUID id, User user) throws BussinesException {

@@ -222,7 +222,6 @@ public class WindowEmployeController {
         user.setEmail(req.getEmail());
         user.setPhone(req.getPhone());
         user.setAddress(req.getAddress());
-        user.setRelatedId(req.getRelatedId());
         user.setBirthDate(req.getBirthDate());
         user.setSystemRole(req.getSystemRole());
         user.setUserStatus(req.getUserStatus());
@@ -355,8 +354,7 @@ public class WindowEmployeController {
     private static UserResponse toUserResponse(User u) {
         return new UserResponse(
                 u.getFullName(), u.getDocument(), u.getEmail(),
-                u.getPhone(), u.getAddress(), u.getUserID(),
-                u.getRelatedId(), u.getBirthDate(), u.getSystemRole(),
+                u.getPhone(), u.getAddress(), u.getUserID(), u.getBirthDate(), u.getSystemRole(),
                 u.getUserStatus(), u.getUserName(), u.getPassword(),
                 u.getCompany(), null);
     }

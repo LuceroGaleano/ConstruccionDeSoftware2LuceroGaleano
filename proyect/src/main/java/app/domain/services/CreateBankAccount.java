@@ -36,7 +36,15 @@ public class CreateBankAccount {
     }
 
     public void createBankAccount(BankAccount bankAccount, User user) throws BussinesException{
+        // Validar que la cuenta exista
+        if (bankAccount == null) {
+            throw new BussinesException("Cuenta bancaria inválida");
+        }
 
+        // Validar que el usuario exista
+        if (user == null) {
+            throw new BussinesException("Usuario inválido");
+        }
 
         // Validar que exista el cliente y obtenerlo completo desde la BD
         Customer customer = customerPort.findByDocument(bankAccount.getCustomerOwner().getDocument());

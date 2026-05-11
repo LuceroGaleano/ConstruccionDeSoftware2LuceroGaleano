@@ -23,6 +23,10 @@ public class CreateCorporateCustomer {
     }
 
     public void createCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException {
+        // Validar que el cliente corporativo exista
+        if (corporateCustomer == null) {
+            throw new BussinesException("Cliente corporativo inválido");
+        }
 
         // Validar que el NIT no exista
         if (customerPort.existsByDocument(corporateCustomer.getDocument())) {
@@ -47,6 +51,11 @@ public class CreateCorporateCustomer {
         PersonCustomer legal = (PersonCustomer) customerPort.findByDocument(corporateCustomer.getLegalRepresentative().getDocument());
         if(legal == null){
             throw new BussinesException("El representante legal no existe en el sistema");
+        }
+
+        if (!(corporateCustomer.getLegalRepresentative() instanceof PersonCustomer)) {
+            throw new BussinesException(
+                "El representante legal debe ser una persona natural");
         }
 
         // Validar que el representante legal esté activo

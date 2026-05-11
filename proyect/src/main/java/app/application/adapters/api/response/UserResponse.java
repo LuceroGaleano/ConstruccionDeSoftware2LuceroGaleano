@@ -13,7 +13,6 @@ public record UserResponse(
     String phone,
     String address,
     UUID userID,
-    UUID relatedId,
     Date birthDate,
     RolUser systemRole,
     UserStatus userStatus,

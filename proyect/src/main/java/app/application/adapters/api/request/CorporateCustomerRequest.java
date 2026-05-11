@@ -1,9 +1,5 @@
 package app.application.adapters.api.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import app.domain.models.Product;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.RolCustomer;
 import jakarta.validation.Valid;
@@ -33,9 +29,6 @@ public class CorporateCustomerRequest extends CustomerRequest {
 
     private RolCustomer rolCustomer;
     private CustomerStatus customerStatus;
-
-    @Valid
-    private List<Product> listProducts = new ArrayList<>();
 
     @Valid
     @NotNull(message = "El representante legal es obligatorio")

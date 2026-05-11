@@ -9,9 +9,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import app.application.adapters.api.request.ApproveLoanRequest;
 import app.application.adapters.api.response.BankAccountResponse;
 import app.application.adapters.api.response.CorporateCustomerResponse;
 import app.application.adapters.api.response.CustomerResponse;
@@ -77,14 +79,23 @@ public class InternalAnalystController {
     }
 
     @PutMapping("/loans/{id}/approve")
-    public ResponseEntity<Void> approveLoan(@PathVariable UUID id) {
-        internalAnalystUseCase.approveLoan(id, getAuthenticatedUser());
+    public ResponseEntity<Void> approveLoan(
+            @PathVariable UUID id,
+            @RequestBody ApproveLoanRequest request) {
+        internalAnalystUseCase.approveLoan(id, getAuthenticatedUser(), request.getApprovedAmount());
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/loans/{id}/reject")
     public ResponseEntity<Void> rejectLoan(@PathVariable UUID id) {
         internalAnalystUseCase.rejectLoan(id, getAuthenticatedUser());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/loans/{id}/disburse")
+    public ResponseEntity<Void> disburseLoan(@PathVariable UUID id) {
+        User user = getAuthenticatedUser();
+        internalAnalystUseCase.disburseLoan(id, user);
         return ResponseEntity.ok().build();
     }
 

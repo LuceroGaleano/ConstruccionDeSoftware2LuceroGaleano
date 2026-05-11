@@ -4,11 +4,5 @@ public enum CurrencyType {
     COP,
     USD,
     EUR,
-    GBP,
-    JPY,
-    MXN,
-    ARS,
-    BRL,
-    CHF,
-    CAD
+    GBP
 }

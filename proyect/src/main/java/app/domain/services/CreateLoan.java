@@ -1,5 +1,6 @@
 package app.domain.services;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import app.domain.models.Customer;
 import app.domain.models.Loan;
 import app.domain.models.User;
 import app.domain.models.enums.AccountStatus;
+import app.domain.models.enums.CurrencyType;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.LoanStatus;
 import app.domain.models.enums.OperationBitacora;
@@ -39,6 +41,15 @@ public class CreateLoan {
     }
 
     public void createLoan(Loan loan, User user) throws BussinesException{
+        // Validar que el préstamo exista
+        if (loan == null) {
+            throw new BussinesException("Préstamo no encontrado");
+        }
+
+        // Validar que el usuario exista
+        if (user == null) {
+            throw new BussinesException("Usuario no encontrado");
+        }
         Customer customerOwner = loan.getCustomerOwner();
         // Validamos que el cliente solicitante exista y lo obtenemos completo desde la BD
         Customer customer = customerPort.findByDocument(customerOwner.getDocument());
@@ -72,6 +83,12 @@ public class CreateLoan {
             throw new BussinesException("La cuenta de desembolso no pertenece al cliente solicitante");
         }
 
+        //Validamos que el monto solicitado no este por debajo del minimo
+        if(loan.getRequestedAmount().compareTo(getMinLoanAmount(bankAccount.getCurrencyType())) < 0){
+            throw new BussinesException("No es posible crear el prestamo, el monto solicitado esta por debajo del minimo");
+        }
+
+        //Validamos que el cliente este creando un prestamo para el mismo, y no para otro
         if(!user.getDocument().equals(customer.getDocument()) && (user.getSystemRole().equals(RolUser.PersonCustomerUser) || user.getSystemRole().equals(RolUser.CorporateCustomerUser))){
             throw new BussinesException("No puedes solicitar un prestamo para otro cliente");
         }
@@ -102,5 +119,16 @@ public class CreateLoan {
         System.out.println("Guardando bitacora...");
         bitacoraPort.save(bitacora);
         System.out.println("Bitacora guardada!");
+    }
+
+    //Obtener minimo posible segun su moneda
+    private BigDecimal getMinLoanAmount(CurrencyType currencyType){
+        return switch (currencyType) {
+            case COP -> BigDecimal.valueOf(100000);
+            case USD -> BigDecimal.valueOf(50);
+            case EUR -> BigDecimal.valueOf(50);
+            case GBP -> BigDecimal.valueOf(50);
+            default -> BigDecimal.ZERO;
+        };
     }
 }

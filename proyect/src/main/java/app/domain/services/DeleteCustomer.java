@@ -1,6 +1,7 @@
 package app.domain.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import app.domain.Exception.BussinesException;
@@ -19,6 +20,17 @@ public class DeleteCustomer {
         if(!customerPort.existsByDocument(document)){
             throw new BussinesException("Cliente no encontrado");
         }
-        customerPort.deleteByDocument(document);
+
+
+        try{
+
+            customerPort.deleteByDocument(document);
+
+        }catch(DataIntegrityViolationException e){
+
+            throw new BussinesException(
+                "No se puede eliminar porque el cliente está asociado a alguna/s empresa/s"
+            );
+        }
     }
 }

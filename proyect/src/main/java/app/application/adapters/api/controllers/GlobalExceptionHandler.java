@@ -1,9 +1,12 @@
 package app.application.adapters.api.controllers;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import app.application.adapters.api.response.ErrorResponse;
 import app.domain.Exception.BussinesException;
 import app.domain.Exception.NotFoundException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -67,6 +71,28 @@ public class GlobalExceptionHandler {
                 "No autenticado: " + ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleEnumParseError(HttpMessageNotReadableException ex) {
+
+        String mensaje = "El valor enviado no es válido.";
+
+        Throwable causa = ex.getCause();
+        if (causa instanceof InvalidFormatException ife && ife.getTargetType().isEnum()) {
+            String valorInvalido = ife.getValue().toString();
+            String valoresValidos = Arrays.stream(ife.getTargetType().getEnumConstants())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+
+            mensaje = "El valor '" + valorInvalido + "' no es válido. Valores aceptados: " + valoresValidos;
+        }
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                mensaje
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(Exception.class)

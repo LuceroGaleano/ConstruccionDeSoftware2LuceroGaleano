@@ -2,7 +2,6 @@ package app.application.adapters.api.request;
 
 import app.domain.models.enums.CustomerStatus;
 import app.domain.models.enums.RolCustomer;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +29,6 @@ public class CorporateCustomerRequest extends CustomerRequest {
     private RolCustomer rolCustomer;
     private CustomerStatus customerStatus;
 
-    @Valid
     @NotNull(message = "El representante legal es obligatorio")
     private PersonCustomerRequest legalRepresentative;
 }

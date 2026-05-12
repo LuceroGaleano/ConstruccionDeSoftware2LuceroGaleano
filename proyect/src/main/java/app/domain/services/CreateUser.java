@@ -82,7 +82,7 @@ public class CreateUser {
                         throw new BussinesException("El cliente no existe, envíe todos sus datos para crearlo");
                     }
                     if (pc.getFullName() == null || pc.getEmail() == null || pc.getBirthDate() == null) {
-                        throw new BussinesException("El cliente no existe, envíe fullName, email y birthDate para crearlo \n customer:NIT");
+                        throw new BussinesException("El cliente no existe, envíe sus datos para crearlo");
                     }
                     createPersonCustomer.createPersonCustomer(pc);
                     user.setCustomer(pc);

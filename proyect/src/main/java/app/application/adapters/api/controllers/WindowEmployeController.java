@@ -148,7 +148,8 @@ public class WindowEmployeController {
         CorporateCustomer corporateCustomer = toCorporateCustomer(request);
         corporateCustomer.setDocument(document);
         windowEmployeUseCase.updateCorporateCustomer(corporateCustomer);
-        return ResponseEntity.ok(toCorporateCustomerResponse(corporateCustomer));
+        CorporateCustomer updated = (CorporateCustomer) windowEmployeUseCase.findCustomerByDocument(document);
+        return ResponseEntity.ok(toCorporateCustomerResponse(updated));
     }
 
     @GetMapping("/customer/{document}")

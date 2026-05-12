@@ -73,6 +73,11 @@ public class CreateTransfer {
             throw new BussinesException("No se ha encontrado la cuenta de destino");
         }
 
+        //Validamos que no sea la misma cuenta
+        if(origenAccountFull.getAccountNumber() == (destinationAccountFull.getAccountNumber())){
+            throw new BussinesException("No es posible transferir a la misma cuenta");
+        }
+
         //Validamos que quien este creando la transferencia sea dueño de la cuenta origen
         if(!origenAccountFull.getCustomerOwner().getDocument().equals(user.getDocument()) &&
         (user.getSystemRole().equals(RolUser.PersonCustomerUser) ||
@@ -95,6 +100,7 @@ public class CreateTransfer {
         }
 
         // Validamos que el creador de la transferencia exista
+        transfer.setIdCreator(user.getDocument());
         User createUser = userPort.findByDocument(transfer.getIdCreator());
         if (createUser == null) {
             throw new BussinesException("No se ha encontrado el usuario creador de la transferencia");
@@ -113,38 +119,46 @@ public class CreateTransfer {
 
         // Guardamos 
         transfer.setCreationDate(new Date(System.currentTimeMillis()));
-        transfer.setIdCreator(user.getDocument());
         transferPort.save(transfer);
 
-        //Crear detalles para bitacora
-        Map<String, Object> detailData = Map.of(
-            "balanceBeforeOrigin", origenAccountFull.getCurrentBalance(),
-            "balanceBeforeDestination", destinationAccountFull.getCurrentBalance()
-        );
+        // Si supera el límite y es corriente → pendiente
+        if (transfer.getAmount().compareTo(getMaxAmount(origenAccountFull.getCurrencyType())) > 0
+                && origenAccountFull.getAccountType() == AccountType.Current) {
 
-        //Guardada la transferencia cambiamos el monto
-        // Si el monto supera el límite y la cuenta es de tipo corriente, necesitará aprobación
-        if (transfer.getAmount().compareTo(getMaxAmount(origenAccountFull.getCurrencyType())) > 0 && origenAccountFull.getAccountType() == AccountType.Current) {
             transfer.setTransferStatus(TransferStatus.Pending);
             transferPort.update(transfer);
-        } else if(transfer.getAmount().compareTo(getMaxAmount(origenAccountFull.getCurrencyType())) < 0 && origenAccountFull.getAccountType() == AccountType.Current) {
+
+        } else {
+
+            // Cualquier otra transferencia válida se aprueba
             transfer.setTransferStatus(TransferStatus.Approved);
             transfer.setApprovalDate(new Date(System.currentTimeMillis()));
             transfer.setIdApprover(user.getDocument());
+
+            transferPort.update(transfer);
+
             executeTransfer.executeTransfer(transfer);
-        } else{
-            transfer.setTransferStatus(TransferStatus.Cancelled);
         }
 
 
-        //Bitacora
-        //Actualizamos detalles para bitacora 
-        detailData = Map.of(
-        "amountTransfer", transfer.getAmount(),
-        "balanceBeforeOrigin", origenAccountFull.getCurrentBalance(),
-        "balanceBeforeDestination", destinationAccountFull.getCurrentBalance()
-        );
+        // Recargar cuentas actualizadas
+        BankAccount updatedOrigin =
+            bankAccountPort.findByAccountNumber(origenAccountFull.getAccountNumber());
 
+        BankAccount updatedDestination =
+            bankAccountPort.findByAccountNumber(destinationAccountFull.getAccountNumber());
+
+        // Bitácora
+        Map<String, Object>  detailData = Map.of(
+            "amountTransfer", transfer.getAmount(),
+
+            "balanceBeforeOrigin", origenAccountFull.getCurrentBalance(),
+            "balanceAfterOrigin", updatedOrigin.getCurrentBalance(),
+
+            "balanceBeforeDestination", destinationAccountFull.getCurrentBalance(),
+            "balanceAfterDestination", updatedDestination.getCurrentBalance()
+        );
+        
         Bitacora bitacora = new Bitacora();
         bitacora.setOperationType(OperationBitacora.CreationTransfer);
         bitacora.setUserDocument(user.getDocument());

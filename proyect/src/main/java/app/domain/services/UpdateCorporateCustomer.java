@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import app.domain.Exception.BussinesException;
 import app.domain.models.CorporateCustomer;
+import app.domain.models.PersonCustomer;
 import app.domain.models.enums.CustomerStatus;
 import app.domain.ports.CustomerPort;
 import app.domain.ports.UserPort;
@@ -22,22 +23,32 @@ public class UpdateCorporateCustomer {
         this.userPort = userPort;
     }
 
-    public void updateCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException{
-        if(!customerPort.existsByDocument(corporateCustomer.getDocument())){
-            throw new BussinesException("No existe una empresa con dicha NIT");
-        }
-        
-        //Validar que la persona representante exista en la base de datos
-        if(!customerPort.existsByDocument(corporateCustomer.getLegalRepresentative().getDocument())){
-            createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
+    public void updateCorporateCustomer(CorporateCustomer corporateCustomer) throws BussinesException {
+        if (!customerPort.existsByDocument(corporateCustomer.getDocument())) {
+            throw new BussinesException("No existe una empresa con dicho NIT");
         }
 
-        //Validar que la persona representante este activo
-        if(corporateCustomer.getLegalRepresentative().getCustomerStatus() != CustomerStatus.Active){
-            throw new BussinesException("El representante legal no esta activo en el sistema");
+        if (corporateCustomer.getLegalRepresentative() != null) {
+            String legalDoc = corporateCustomer.getLegalRepresentative().getDocument();
+
+            if (!customerPort.existsByDocument(legalDoc)) {
+                createPersonCustomer.createPersonCustomer(corporateCustomer.getLegalRepresentative());
+            }
+
+            // Buscar desde BD para tener el estado real
+            PersonCustomer legal = (PersonCustomer) customerPort.findByDocument(legalDoc);
+            if (legal == null) {
+                throw new BussinesException("No se encontró el representante legal");
+            }
+            if (legal.getCustomerStatus() != CustomerStatus.Active) {
+                throw new BussinesException("El representante legal no está activo en el sistema");
+            }
+
+            // Asignar el representante completo desde BD
+            corporateCustomer.setLegalRepresentative(legal);
         }
 
-        if(userPort.existsByDocument(corporateCustomer.getDocument())){
+        if (userPort.existsByDocument(corporateCustomer.getDocument())) {
             userPort.update(userPort.findByDocument(corporateCustomer.getDocument()));
         }
 

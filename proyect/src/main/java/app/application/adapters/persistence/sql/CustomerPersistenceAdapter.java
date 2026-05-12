@@ -85,7 +85,6 @@ public class CustomerPersistenceAdapter implements CustomerPort {
         } else if (customer instanceof CorporateCustomer cc) {
             CorporateCustomerEntity ce = new CorporateCustomerEntity();
             if (cc.getLegalRepresentative() != null) {
-                // ✅ Busca la entidad existente en la BD
                 PersonCustomerEntity legalEntity = (PersonCustomerEntity) customerRepository
                     .findByDocument(cc.getLegalRepresentative().getDocument());
                 ce.setLegalRepresentative(legalEntity);

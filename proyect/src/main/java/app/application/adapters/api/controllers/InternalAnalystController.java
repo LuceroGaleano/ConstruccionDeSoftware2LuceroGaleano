@@ -35,10 +35,10 @@ import app.domain.ports.UserPort;
 @RequestMapping("/internal_analyst")
 public class InternalAnalystController {
 
-    @Autowired
     private final InternalAnalystUseCase internalAnalystUseCase;
     private final UserPort userPort;
 
+    @Autowired
     public InternalAnalystController(InternalAnalystUseCase internalAnalystUseCase, UserPort userPort) {
         this.internalAnalystUseCase = internalAnalystUseCase;
         this.userPort = userPort;
@@ -49,20 +49,28 @@ public class InternalAnalystController {
         return userPort.findByDocument(document);
     }
 
-    // ── Customers ─────────────────────────────────────────────────────────────
+    // ── CUSTOMER ─────────────────────────────────────────────
 
     @GetMapping("/customer/{document}")
     public ResponseEntity<?> findCustomerByDocument(@PathVariable String document) {
         Customer customer = internalAnalystUseCase.findCustomerByDocument(document);
-        if (customer instanceof PersonCustomer person) {
-            return ResponseEntity.ok(toPersonCustomerResponse(person));
-        } else if (customer instanceof CorporateCustomer corporate) {
-            return ResponseEntity.ok(toCorporateCustomerResponse(corporate));
+
+        if (customer == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+
+        if (customer instanceof PersonCustomer p) {
+            return ResponseEntity.ok(toPersonCustomerResponse(p));
+        }
+
+        if (customer instanceof CorporateCustomer c) {
+            return ResponseEntity.ok(toCorporateCustomerResponse(c));
+        }
+
+        return ResponseEntity.status(500).body("Tipo de cliente no soportado");
     }
 
-    // ── Loans ─────────────────────────────────────────────────────────────────
+    // ── LOANS ─────────────────────────────────────────────
 
     @GetMapping("/loans/{id}")
     public ResponseEntity<LoanResponse> findLoanById(@PathVariable UUID id) {
@@ -73,15 +81,19 @@ public class InternalAnalystController {
     @GetMapping("/loans/customer/{document}")
     public ResponseEntity<List<LoanResponse>> findLoansByCustomer(@PathVariable String document) {
         User user = getAuthenticatedUser();
-        List<LoanResponse> loans = internalAnalystUseCase.findLoansByCustomer(document, user)
-                .stream().map(InternalAnalystController::toLoanResponse).toList();
+
+        List<LoanResponse> loans =
+                internalAnalystUseCase.findLoansByCustomer(document, user)
+                        .stream()
+                        .map(InternalAnalystController::toLoanResponse)
+                        .toList();
+
         return ResponseEntity.ok(loans);
     }
 
     @PutMapping("/loans/{id}/approve")
-    public ResponseEntity<Void> approveLoan(
-            @PathVariable UUID id,
-            @RequestBody ApproveLoanRequest request) {
+    public ResponseEntity<Void> approveLoan(@PathVariable UUID id,
+                                            @RequestBody ApproveLoanRequest request) {
         internalAnalystUseCase.approveLoan(id, getAuthenticatedUser(), request.getApprovedAmount());
         return ResponseEntity.ok().build();
     }
@@ -94,12 +106,11 @@ public class InternalAnalystController {
 
     @PutMapping("/loans/{id}/disburse")
     public ResponseEntity<Void> disburseLoan(@PathVariable UUID id) {
-        User user = getAuthenticatedUser();
-        internalAnalystUseCase.disburseLoan(id, user);
+        internalAnalystUseCase.disburseLoan(id, getAuthenticatedUser());
         return ResponseEntity.ok().build();
     }
 
-    // ── Transfers ─────────────────────────────────────────────────────────────
+    // ── TRANSFERS ─────────────────────────────────────────────
 
     @GetMapping("/transfers/{id}")
     public ResponseEntity<TransferResponse> findTransferById(@PathVariable UUID id) {
@@ -110,12 +121,17 @@ public class InternalAnalystController {
     @GetMapping("/transfers/account/{accountNumber}")
     public ResponseEntity<List<TransferResponse>> findTransfersByAccount(@PathVariable int accountNumber) {
         User user = getAuthenticatedUser();
-        List<TransferResponse> transfers = internalAnalystUseCase.findTransfersByAccount(accountNumber, user)
-                .stream().map(InternalAnalystController::toTransferResponse).toList();
+
+        List<TransferResponse> transfers =
+                internalAnalystUseCase.findTransfersByAccount(accountNumber, user)
+                        .stream()
+                        .map(InternalAnalystController::toTransferResponse)
+                        .toList();
+
         return ResponseEntity.ok(transfers);
     }
 
-    // ── Bank Accounts ─────────────────────────────────────────────────────────
+    // ── BANK ACCOUNTS ─────────────────────────────────────────────
 
     @GetMapping("/bank_accounts/{id}")
     public ResponseEntity<BankAccountResponse> findBankAccountById(@PathVariable UUID id) {
@@ -125,13 +141,19 @@ public class InternalAnalystController {
 
     @GetMapping("/bank_accounts/customer/{document}")
     public ResponseEntity<List<BankAccountResponse>> findBankAccountsByCustomer(@PathVariable String document) {
+
         User user = getAuthenticatedUser();
-        List<BankAccountResponse> accounts = internalAnalystUseCase.findBankAccountsByCustomer(document, user)
-                .stream().map(InternalAnalystController::toBankAccountResponse).toList();
+
+        List<BankAccountResponse> accounts =
+                internalAnalystUseCase.findBankAccountsByCustomer(document, user)
+                        .stream()
+                        .map(InternalAnalystController::toBankAccountResponse)
+                        .toList();
+
         return ResponseEntity.ok(accounts);
     }
 
-    // ── Bitacora ──────────────────────────────────────────────────────────────
+    // ── BITACORA ─────────────────────────────────────────────
 
     @GetMapping("/bitacora/{id}")
     public ResponseEntity<Bitacora> findBitacoraById(@PathVariable String id) {
@@ -139,54 +161,96 @@ public class InternalAnalystController {
         return ResponseEntity.ok(bitacora);
     }
 
-    // ── Mappers ───────────────────────────────────────────────────────────────
+    // ── MAPPERS ─────────────────────────────────────────────
 
     private static LoanResponse toLoanResponse(Loan loan) {
         return new LoanResponse(
-                loan.getId(), loan.getProductName(), loan.getProductCategory(),
-                loan.isApproved(), loan.getCustomerOwner(), loan.getLoanType(),
-                loan.getCustomerOwner(), loan.getRequestedAmount(), loan.getApprovedAmount(),
-                loan.getInterestRate(), loan.getTermInMonths(), loan.getLoanStatus(),
-                loan.getCreateDate(), loan.getApprovalDate(),
-                loan.getDisburseDate(), loan.getDisburseAccount());
+                loan.getId(),
+                loan.getProductName(),
+                loan.getProductCategory(),
+                loan.isApproved(),
+                loan.getCustomerOwner(),
+                loan.getLoanType(),
+                loan.getCustomerOwner(),
+                loan.getRequestedAmount(),
+                loan.getApprovedAmount(),
+                loan.getInterestRate(),
+                loan.getTermInMonths(),
+                loan.getLoanStatus(),
+                loan.getCreateDate(),
+                loan.getApprovalDate(),
+                loan.getDisburseDate(),
+                loan.getDisburseAccount()
+        );
     }
 
     private static TransferResponse toTransferResponse(Transfer t) {
         return new TransferResponse(
-                t.getId(), t.getOriginAccount(), t.getDestinationAccount(),
-                t.getAmount(), t.getCreationDate(), t.getApprovalDate(),
-                t.getTransferStatus(), t.getIdCreator(), t.getIdApprover());
+                t.getId(),
+                t.getOriginAccount(),
+                t.getDestinationAccount(),
+                t.getAmount(),
+                t.getCreationDate(),
+                t.getApprovalDate(),
+                t.getTransferStatus(),
+                t.getIdCreator(),
+                t.getIdApprover()
+        );
     }
 
     private static PersonCustomerResponse toPersonCustomerResponse(PersonCustomer p) {
         return new PersonCustomerResponse(
-                p.getId(), p.getFullName(), p.getDocument(),
-                p.getEmail(), p.getPhone(), p.getAddress(),
-                p.getRolCustomer(), p.getCustomerStatus(), p.getBirthDate());
+                p.getId(),
+                p.getFullName(),
+                p.getDocument(),
+                p.getEmail(),
+                p.getPhone(),
+                p.getAddress(),
+                p.getRolCustomer(),
+                p.getCustomerStatus(),
+                p.getBirthDate()
+        );
     }
 
     private static CorporateCustomerResponse toCorporateCustomerResponse(CorporateCustomer c) {
         return new CorporateCustomerResponse(
-                c.getId(), c.getFullName(), c.getDocument(),
-                c.getEmail(), c.getPhone(), c.getAddress(),
-                c.getRolCustomer(), c.getCustomerStatus(),
-                toPersonCustomerResponse(c.getLegalRepresentative()));
+                c.getId(),
+                c.getFullName(),
+                c.getDocument(),
+                c.getEmail(),
+                c.getPhone(),
+                c.getAddress(),
+                c.getRolCustomer(),
+                c.getCustomerStatus(),
+                c.getLegalRepresentative() != null
+                        ? toPersonCustomerResponse(c.getLegalRepresentative())
+                        : null
+        );
     }
 
     private static CustomerResponse customerResponse(Customer c) {
         if (c instanceof PersonCustomer p) {
             return toPersonCustomerResponse(p);
-        } else if (c instanceof CorporateCustomer co) {
+        }
+        if (c instanceof CorporateCustomer co) {
             return toCorporateCustomerResponse(co);
         }
-        throw new RuntimeException("Tipo no soportado");
+        throw new RuntimeException("Tipo de cliente no permitido");
     }
 
     private static BankAccountResponse toBankAccountResponse(BankAccount b) {
         return new BankAccountResponse(
-                b.getId(), b.getProductName(), b.getProductCategory(),
-                b.isApproved(), customerResponse(b.getCustomerOwner()), b.getAccountNumber(),
-                b.getCurrentBalance(), b.getAccountStatus(), b.getOpeningDate(),
-                b.getAccountType(), b.getCurrencyType());
+                b.getId(),
+                b.getProductName(),
+                b.getProductCategory(),
+                b.isApproved(),
+                customerResponse(b.getCustomerOwner()),
+                b.getAccountNumber(),
+                b.getCurrentBalance(),
+                b.getAccountStatus(),
+                b.getOpeningDate(),
+                b.getAccountType(),
+                b.getCurrencyType()
+        );
     }
 }

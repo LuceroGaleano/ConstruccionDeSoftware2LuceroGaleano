@@ -33,25 +33,29 @@ public class UserPersistenceAdapter implements UserPort {
         userRepository.save(toEntity(user));
     }
 
+
     @Override
     public void update(User user) {
         UserEntity existingUser = userRepository.findByDocument(user.getDocument());
         if (existingUser != null) {
-            existingUser.setFullName(user.getFullName());
-            existingUser.setDocument(user.getDocument());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setPhone(user.getPhone());
-            existingUser.setAddress(user.getAddress());
-            existingUser.setUserID(user.getUserID());
-            existingUser.setSystemRole(user.getSystemRole() != null ? user.getSystemRole().toString() : null);
-            existingUser.setUserStatus(user.getUserStatus() != null ? user.getUserStatus().toString() : null);
-            existingUser.setUserName(user.getUserName());
-            existingUser.setPassword(user.getPassword());
-            existingUser.setCompany(user.getCompany());
+            if (user.getFullName() != null)   existingUser.setFullName(user.getFullName());
+            if (user.getEmail() != null)      existingUser.setEmail(user.getEmail());
+            if (user.getPhone() != null)      existingUser.setPhone(user.getPhone());
+            if (user.getAddress() != null)    existingUser.setAddress(user.getAddress());
+            if (user.getUserName() != null)   existingUser.setUserName(user.getUserName());
+            if (user.getCompany() != null)    existingUser.setCompany(user.getCompany());
+            if (user.getBirthDate() != null)  existingUser.setBirthDate(user.getBirthDate());
+            if (user.getSystemRole() != null) existingUser.setSystemRole(user.getSystemRole().toString());
+            if (user.getUserStatus() != null) existingUser.setUserStatus(user.getUserStatus().toString());
+
+            if (user.getPassword() != null && !user.getPassword().isBlank()) {
+                existingUser.setPassword(user.getPassword());
+            }
             if (user.getCustomer() != null) {
                 CustomerEntity customerEntity = customerRepository.findByDocument(user.getCustomer().getDocument());
                 existingUser.setCustomer(customerEntity);
             }
+
             userRepository.save(existingUser);
         }
     }
@@ -105,6 +109,7 @@ public class UserPersistenceAdapter implements UserPort {
         e.setUserName(user.getUserName());
         e.setPassword(user.getPassword());
         e.setCompany(user.getCompany());
+        e.setBirthDate(user.getBirthDate());
         if (user.getCustomer() != null) {
             CustomerEntity customerEntity = customerRepository.findByDocument(user.getCustomer().getDocument());
             e.setCustomer(customerEntity);
@@ -126,6 +131,7 @@ public class UserPersistenceAdapter implements UserPort {
         user.setUserName(e.getUserName());
         user.setPassword(e.getPassword());
         user.setCompany(e.getCompany());
+        user.setBirthDate(e.getBirthDate());
         if (e.getCustomer() instanceof PersonCustomerEntity pc) {
             PersonCustomer customer = new PersonCustomer();
             customer.setDocument(pc.getDocument());

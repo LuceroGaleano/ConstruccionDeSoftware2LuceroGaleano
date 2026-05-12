@@ -63,7 +63,7 @@ public class SalesEmployeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toPersonCustomerResponse(personCustomer));
     }
 
-    @PostMapping("/coorporate_customer")
+    @PostMapping("/corporate_customer")
     public ResponseEntity<CorporateCustomerResponse> createCorporateCustomer(
             @Validated(OnSearch.class) @RequestBody CorporateCustomerRequest request) {
         CorporateCustomer corporateCustomer = toCorporateCustomer(request);

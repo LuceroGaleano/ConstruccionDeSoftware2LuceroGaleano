@@ -54,7 +54,9 @@ public class DisburseLoan {
             throw new BussinesException("El prestamo no esta aprobado");
         }
 
-        BankAccount bankAccount = loan.getDisburseAccount();
+        BankAccount bankAccount = bankAccountPort.findById(
+                loan.getDisburseAccount().getId()
+        );
 
         if (bankAccount == null) {
             throw new BussinesException("La cuenta de desembolso no existe");
@@ -88,7 +90,9 @@ public class DisburseLoan {
     }
 
     private void disburse(Loan loan) {
-        BankAccount disburseAccount = loan.getDisburseAccount();
+        BankAccount disburseAccount = bankAccountPort.findById(
+                loan.getDisburseAccount().getId()
+        );
         BigDecimal amount = loan.getApprovedAmount();
         disburseAccount.setCurrentBalance(disburseAccount.getCurrentBalance().add(amount));
         bankAccountPort.update(disburseAccount);

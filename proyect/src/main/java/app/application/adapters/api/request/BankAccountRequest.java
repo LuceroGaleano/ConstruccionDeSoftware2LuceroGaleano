@@ -28,7 +28,6 @@ public class BankAccountRequest {
     private AccountStatus accountStatus;
     private Date openingDate;
 
-    @NotNull(message = "El tipo de cuenta es obligatorio")
     private AccountType accountType;
 
     @NotNull(message = "El tipo de moneda es obligatorio")

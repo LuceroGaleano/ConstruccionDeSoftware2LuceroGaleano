@@ -41,11 +41,13 @@ public class ApproveLoan {
             throws BussinesException {
 
         Loan loan = loanPort.findById(idLoan);
-
+        
+        //Validamos que exista el prestamo
         if (loan == null) {
             throw new BussinesException("Prestamo no encontrado");
         }
 
+        //Validamos que el estado este pendiente
         if (!loan.getLoanStatus().equals(LoanStatus.Requested)) {
             throw new BussinesException("Estado invalido");
         }
@@ -58,6 +60,7 @@ public class ApproveLoan {
             throw new BussinesException("Cuenta de desembolso no encontrada");
         }
 
+        //Validamos que el monto aprovado mayor al minimo
         if (approvedAmount.compareTo(
                 getMinLoanAmount(bankAccount.getCurrencyType())) < 0) {
 
@@ -65,6 +68,7 @@ public class ApproveLoan {
                     "No es posible crear el prestamo, el monto solicitado esta por debajo del minimo");
         }
 
+        //Validamos qeue l monto aprobado no sea mayor al monto solicitado
         if (approvedAmount.compareTo(loan.getRequestedAmount()) > 0) {
             throw new BussinesException(
                     "El monto aprobado no puede ser mayor al monto solicitado");
@@ -73,7 +77,7 @@ public class ApproveLoan {
         LoanStatus previousState = loan.getLoanStatus();
 
         loan.setApprovedAmount(approvedAmount);
-        
+
         //Validamos el monto aprobado
         if(loan.getApprovedAmount() == null){
             throw new BussinesException("Inserta el monto aprobado");
